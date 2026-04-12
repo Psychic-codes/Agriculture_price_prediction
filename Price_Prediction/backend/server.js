@@ -6,6 +6,8 @@ import mspRouter from "./routes/msp.js";
 import weatherRouter from "./routes/weather.js";
 import fuelRouter from "./routes/fuel.js";
 import path from "path";
+import AuthRouter from "./routes/auth.js"
+import GovtRouter from "./routes/government.js"
 import { fileURLToPath } from "url";
 import fs from "fs";
 
@@ -17,11 +19,13 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // ─── Routes ───────────────────────────────────────────────────
+app.use("/api/auth", AuthRouter);
 app.use("/api/commodities", commoditiesRouter);
-app.use("/api/categories",  categoriesRouter);
-app.use("/api/msp",         mspRouter);
-app.use("/api/weather",     weatherRouter);
-app.use("/api/fuel",        fuelRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/msp", mspRouter);
+app.use("/api/weather", weatherRouter);
+app.use("/api/fuel", fuelRouter);
+app.use("/api/government", GovtRouter);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootProjectDir = path.resolve(__dirname, "../../");
@@ -51,19 +55,19 @@ app.use((_req, res) => res.status(404).json({ error: "Not found" }));
 
 // ─── Start ────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`\n🌱  Fertile Data API  →  http://localhost:${PORT}\n`);
-  console.log("  GET /api/health");
-  console.log("  GET /api/categories");
-  console.log("  GET /api/commodities");
-  console.log("  GET /api/commodities/:id/price?days=90");
-  console.log("  GET /api/commodities/:id/arrival?days=90");
-  console.log("  GET /api/msp");
-  console.log("  GET /api/msp/years");
-  console.log("  GET /api/msp/latest");
-  console.log("  GET /api/msp/summary");
-  console.log("  GET /api/msp/trend/:commodity");
-  console.log("  GET /api/weather?lat=19.076&lon=72.8777\n");
-  console.log("  [AI ML Core]");
-  console.log("  GET /api/ml-forecasts  (Returns deeply stacked trajectories + SHAP drivers)");
-  console.log("  GET /plots/:name.png   (Statically mapped AI predictive plots)");
+    console.log(`\n🌱  Fertile Data API  →  http://localhost:${PORT}\n`);
+    console.log("  GET /api/health");
+    console.log("  GET /api/categories");
+    console.log("  GET /api/commodities");
+    console.log("  GET /api/commodities/:id/price?days=90");
+    console.log("  GET /api/commodities/:id/arrival?days=90");
+    console.log("  GET /api/msp");
+    console.log("  GET /api/msp/years");
+    console.log("  GET /api/msp/latest");
+    console.log("  GET /api/msp/summary");
+    console.log("  GET /api/msp/trend/:commodity");
+    console.log("  GET /api/weather?lat=19.076&lon=72.8777\n");
+    console.log("  [AI ML Core]");
+    console.log("  GET /api/ml-forecasts  (Returns deeply stacked trajectories + SHAP drivers)");
+    console.log("  GET /plots/:name.png   (Statically mapped AI predictive plots)");
 });

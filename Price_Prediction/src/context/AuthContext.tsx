@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (user: User, token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  isGovernmentUser: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,8 +43,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('token');
   };
 
+  const isGovernmentUser = user?.role === 'government';
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token, isGovernmentUser }}>
       {children}
     </AuthContext.Provider>
   );

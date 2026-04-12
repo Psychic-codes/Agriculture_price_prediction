@@ -1,5 +1,6 @@
 import React from "react";
 import { theme } from "../../styles/theme";
+import { useAuth } from '../../context/AuthContext';
 
 interface NavbarProps {
   searchPlaceholder?: string;
@@ -30,6 +31,7 @@ const WheatIcon: React.FC = () => (
 const Navbar: React.FC<NavbarProps> = ({
   searchPlaceholder = "Search crops, regions or trends...",
 }) => {
+  const { isGovernmentUser } = useAuth();
   return (
     <header
       style={{
@@ -126,7 +128,7 @@ const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* CTA */}
-      <button
+      {isGovernmentUser && <button
         style={{
           background: theme.colors.primary,
           color: theme.colors.white,
@@ -143,7 +145,7 @@ const Navbar: React.FC<NavbarProps> = ({
         onMouseLeave={(e) => (e.currentTarget.style.background = theme.colors.primary)}
       >
         + Add Harvest
-      </button>
+      </button>}
 
       {/* Avatar */}
       <div

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import type { PageId } from "./types";
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
@@ -9,6 +10,9 @@ import FuelPricesPage from "./pages/FuelPricesPage";
 import WeatherForecastPage from "./pages/WeatherForecastPage";
 import MarketPricesPage from "./pages/MarketPricesPage";
 import MarketForecastPage from "./pages/MarketForecastPage";
+import { Auth } from "./pages/Auth";
+import { useAuth } from "./context/AuthContext";
+
 interface SearchPlaceholders {
   [key: string]: string;
 }
@@ -39,13 +43,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ title }) => (
     }}
   >
     <div style={{ fontSize: 48 }}>🌾</div>
-    <div
-      style={{
-        fontSize: 22,
-        fontWeight: 800,
-        color: theme.colors.primaryDark,
-      }}
-    >
+    <div style={{ fontSize: 22, fontWeight: 800, color: theme.colors.primaryDark }}>
       {title}
     </div>
     <div style={{ fontSize: 14, color: theme.colors.text.muted }}>
@@ -63,47 +61,27 @@ const pageLabels: Record<PageId, string> = {
   "market-forecast": "Market Forecast",
 };
 
-const App: React.FC = () => {
+// ── Main app shell (only rendered when authenticated) ──────────────────────
+const MainLayout: React.FC = () => {
   const [activePage, setActivePage] = useState<PageId>("dashboard");
 
   const renderPage = (): React.ReactNode => {
     switch (activePage) {
-      case "dashboard":
-        return <DashboardPage />;
-      case "msp-tracker":
-        return <MSPTrackerPage />;
-      case "fuel-prices":
-        return <FuelPricesPage />;
-      case "weather-forecast":
-        return <WeatherForecastPage />;
-      case "market-prices":
-        return <MarketPricesPage />;
-      case "market-forecast":
-        return <MarketForecastPage />;
-      default:
-        return <ComingSoon title={pageLabels[activePage]} />;
+      case "dashboard":        return <DashboardPage />;
+      case "msp-tracker":     return <MSPTrackerPage />;
+      case "fuel-prices":     return <FuelPricesPage />;
+      case "weather-forecast":return <WeatherForecastPage />;
+      case "market-prices":   return <MarketPricesPage />;
+      case "market-forecast": return <MarketForecastPage />;
+      default:                return <ComingSoon title={pageLabels[activePage]} />;
     }
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        overflow: "hidden",
-        background: "#1a1a1a",
-      }}
-    >
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#1a1a1a" }}>
       <Sidebar activePage={activePage} onNavigate={setActivePage} />
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <Navbar searchPlaceholder={searchPlaceholders[activePage]} />
         {renderPage()}
       </div>
@@ -134,6 +112,27 @@ const App: React.FC = () => {
         🤖
       </div>
     </div>
+  );
+};
+
+// ── Root router ────────────────────────────────────────────────────────────
+const App: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Routes>
+      {/* /login — redirect to /dashboard if already logged in */}
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Auth />}
+      />
+
+      {/* All other paths — redirect to /login if not authenticated */}
+      <Route
+        path="/*"
+        element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" replace />}
+      />
+    </Routes>
   );
 };
 
