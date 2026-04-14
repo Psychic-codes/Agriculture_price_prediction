@@ -1,6 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { FuelTrendTab } from "../types/fuel";
 import { theme } from "../styles/theme";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    BarController,
+    PointElement,
+    LineElement,
+    LineController,
+    Filler,
+    Tooltip as ChartTooltip,
+    Legend,
+    type ChartOptions,
+    type TooltipModel,
+    type Chart,
+} from "chart.js";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    BarController,
+    PointElement,
+    LineElement,
+    LineController,
+    Filler,
+    ChartTooltip,
+    Legend
+);
 
 // ─── Icons ────────────────────────────────────────────────────
 const BellAlertIcon: React.FC = () => (
@@ -58,18 +87,272 @@ const TrendArrow: React.FC<{ change: number }> = ({ change }) => {
 
 // ─── Chart ────────────────────────────────────────────────────
 const TREND_TABS: FuelTrendTab[] = ["Recent", "Monthly", "Yearly"];
-const MAX_HEIGHT = 160;
-
-const chartDataMap: Record<FuelTrendTab, any> = {
-    Recent: [],
-    Monthly: [],
-    Yearly: [],
-};
 
 const tabSubtitles: Record<FuelTrendTab, string> = {
-    Recent: "Recent 8 Months",
-    Monthly: "Trailing 12 Months",
-    Yearly: "Annual averages 2015–2025",
+    Recent: "Recent 8 months · ₹/Litre",
+    Monthly: "Trailing 12 months · ₹/Litre",
+    Yearly: "Annual averages 2015–2025 · ₹/Litre",
+};
+
+// ─── Tooltip ──────────────────────────────────────────────────
+interface TooltipState {
+    visible: boolean;
+    x: number;
+    y: number;
+    label: string;
+    diesel: string;
+    petrol: string;
+}
+
+const FuelChart: React.FC<{
+    trendTab: FuelTrendTab;
+    chartDataMap: Record<FuelTrendTab, { label: string; diesel: number; petrol: number }[]>;
+    fuelSummary: any;
+}> = ({ trendTab, chartDataMap, fuelSummary }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const chartRef = useRef<Chart | null>(null);
+    const wrapRef = useRef<HTMLDivElement>(null);
+    const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, label: "", diesel: "", petrol: "" });
+
+    const bars = chartDataMap[trendTab] || [];
+    const isYearly = trendTab === "Yearly";
+    const labels = bars.map((b: any) => b.label);
+    const dieselData = bars.map((b: any) => b.diesel);
+    const petrolData = bars.map((b: any) => b.petrol);
+
+    const dLast = dieselData[dieselData.length - 1] ?? 0;
+    const dPrev = dieselData[dieselData.length - 2] ?? dLast;
+    const pLast = petrolData[petrolData.length - 1] ?? 0;
+    const pPrev = petrolData[petrolData.length - 2] ?? pLast;
+    const dChg = dPrev ? ((dLast - dPrev) / dPrev * 100) : 0;
+    const pChg = pPrev ? ((pLast - pPrev) / pPrev * 100) : 0;
+
+    const dMin = Math.min(...dieselData);
+    const dMax = Math.max(...dieselData);
+    const pMin = Math.min(...petrolData);
+    const pMax = Math.max(...petrolData);
+    const spreadAvg = (
+        petrolData.reduce((a: number, v: number) => a + v, 0) / petrolData.length -
+        dieselData.reduce((a: number, v: number) => a + v, 0) / dieselData.length
+    );
+
+    useEffect(() => {
+        if (!canvasRef.current) return;
+        if (chartRef.current) {
+            chartRef.current.destroy();
+            chartRef.current = null;
+        }
+
+        const gridColor = "rgba(0,0,0,0.04)";
+        const tickColor = "rgba(0,0,0,0.35)";
+
+        const externalTooltipHandler = (context: { chart: Chart; tooltip: TooltipModel<any> }) => {
+            const { chart, tooltip: tip } = context;
+            if (tip.opacity === 0) {
+                setTooltip(prev => ({ ...prev, visible: false }));
+                return;
+            }
+            const dPoint = tip.dataPoints?.find(p => p.dataset.label === "Diesel (HSD)");
+            const pPoint = tip.dataPoints?.find(p => p.dataset.label === "Petrol");
+            const canvasRect = chart.canvas.getBoundingClientRect();
+            const wrapRect = wrapRef.current?.getBoundingClientRect();
+            const relX = canvasRect.left - (wrapRect?.left ?? 0) + tip.caretX;
+            setTooltip({
+                visible: true,
+                x: relX,
+                y: tip.caretY,
+                label: tip.dataPoints?.[0]?.label ?? "",
+                diesel: dPoint ? `₹${Number(dPoint.raw).toFixed(2)}` : "--",
+                petrol: pPoint ? `₹${Number(pPoint.raw).toFixed(2)}` : "--",
+            });
+        };
+
+        const datasets = isYearly
+            ? [
+                {
+                    label: "Diesel (HSD)",
+                    data: dieselData,
+                    backgroundColor: "rgba(24,95,165,0.82)",
+                    borderRadius: 5,
+                    borderSkipped: false as const,
+                },
+                {
+                    label: "Petrol",
+                    data: petrolData,
+                    backgroundColor: "rgba(186,117,23,0.82)",
+                    borderRadius: 5,
+                    borderSkipped: false as const,
+                },
+            ]
+            : [
+                {
+                    label: "Diesel (HSD)",
+                    data: dieselData,
+                    borderColor: "#185FA5",
+                    backgroundColor: "rgba(24,95,165,0.07)",
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: "#185FA5",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    fill: true,
+                    tension: 0.38,
+                    borderDash: [],
+                },
+                {
+                    label: "Petrol",
+                    data: petrolData,
+                    borderColor: "#BA7517",
+                    backgroundColor: "rgba(186,117,23,0.06)",
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: "#BA7517",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    fill: true,
+                    tension: 0.38,
+                    borderDash: [6, 3],
+                },
+            ];
+
+        const options: ChartOptions<any> = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 380, easing: "easeInOutQuart" },
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false, external: externalTooltipHandler },
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: {
+                        color: tickColor,
+                        font: { size: 11 },
+                        maxRotation: 0,
+                        autoSkip: !isYearly,
+                        maxTicksLimit: isYearly ? 11 : 8,
+                    },
+                    ...(isYearly ? { barPercentage: 0.65, categoryPercentage: 0.8 } : {}),
+                },
+                y: {
+                    grid: { color: gridColor, drawBorder: false },
+                    border: { display: false, dash: [3, 3] },
+                    ticks: {
+                        color: tickColor,
+                        font: { size: 11 },
+                        callback: (v: number) => `₹${v.toFixed(0)}`,
+                        maxTicksLimit: 5,
+                    },
+                },
+            },
+        };
+
+        chartRef.current = new ChartJS(canvasRef.current, {
+            type: isYearly ? "bar" : "line",
+            data: { labels, datasets },
+            options,
+        }) as Chart;
+
+        return () => {
+            chartRef.current?.destroy();
+            chartRef.current = null;
+        };
+    }, [trendTab, chartDataMap]);
+
+    return (
+        <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "22px 26px", boxShadow: theme.shadow.card }}>
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                <div>
+                    <div style={{ fontWeight: 800, fontSize: 17, color: theme.colors.text.primary, fontFamily: theme.fonts.heading }}>Price Trend Comparison</div>
+                    <div style={{ fontSize: 12, color: theme.colors.text.muted, marginTop: 3 }}>{tabSubtitles[trendTab]}</div>
+                </div>
+                {/* Tab switcher is rendered by parent, passed via prop — kept in parent for state control */}
+            </div>
+
+            {/* Live stat badges */}
+            <div style={{ display: "flex", gap: 20, marginBottom: 16 }}>
+                {[
+                    { label: "Diesel (HSD)", color: "#185FA5", val: dLast, chg: dChg },
+                    { label: "Petrol", color: "#BA7517", val: pLast, chg: pChg },
+                ].map(({ label, color, val, chg }) => (
+                    <div key={label} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: color, display: "inline-block", flexShrink: 0 }} />
+                        <span style={{ fontSize: 12, color: theme.colors.text.muted }}>{label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: theme.colors.text.primary }}>₹{val.toFixed(2)}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: chg > 0 ? "#A32D2D" : "#3B6D11" }}>
+                            {chg > 0 ? "+" : ""}{chg.toFixed(1)}%
+                        </span>
+                    </div>
+                ))}
+            </div>
+
+            {/* Chart canvas */}
+            <div ref={wrapRef} style={{ position: "relative", height: 220, marginBottom: 4 }}>
+                <canvas ref={canvasRef} role="img" aria-label="Fuel price trend for diesel and petrol in Maharashtra" />
+
+                {/* Custom tooltip */}
+                {tooltip.visible && (
+                    <div style={{
+                        position: "absolute",
+                        left: Math.min(tooltip.x + 12, 260),
+                        top: Math.max(tooltip.y - 40, 0),
+                        pointerEvents: "none",
+                        background: theme.colors.white,
+                        border: `1px solid ${theme.colors.neutralBorder}`,
+                        borderRadius: 8,
+                        padding: "10px 14px",
+                        fontSize: 12,
+                        color: theme.colors.text.primary,
+                        whiteSpace: "nowrap",
+                        zIndex: 10,
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
+                    }}>
+                        <div style={{ fontSize: 11, color: theme.colors.text.muted, marginBottom: 6, fontWeight: 600 }}>{tooltip.label}</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#185FA5", flexShrink: 0 }} />
+                            <span style={{ color: theme.colors.text.muted }}>Diesel</span>
+                            <span style={{ fontWeight: 700, marginLeft: "auto", paddingLeft: 12 }}>{tooltip.diesel}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#BA7517", flexShrink: 0 }} />
+                            <span style={{ color: theme.colors.text.muted }}>Petrol</span>
+                            <span style={{ fontWeight: 700, marginLeft: "auto", paddingLeft: 12 }}>{tooltip.petrol}</span>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Range bars + spread */}
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${theme.colors.neutralBorder}`, display: "flex", gap: 14, flexWrap: "wrap" }}>
+                {[
+                    { label: "Diesel range", color: "#185FA5", min: dMin, max: dMax },
+                    { label: "Petrol range", color: "#BA7517", min: pMin, max: pMax },
+                ].map(({ label, color, min, max }) => (
+                    <div key={label} style={{ flex: 1, minWidth: 110 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: theme.colors.text.muted, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 5 }}>{label}</div>
+                        <div style={{ height: 4, background: "#efefef", borderRadius: 4, position: "relative", overflow: "hidden", marginBottom: 5 }}>
+                            <div style={{ position: "absolute", left: "10%", right: "10%", top: 0, bottom: 0, background: color, borderRadius: 4, opacity: 0.65 }} />
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: theme.colors.text.secondary }}>₹{min.toFixed(2)}</span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: theme.colors.text.secondary }}>₹{max.toFixed(2)}</span>
+                        </div>
+                    </div>
+                ))}
+                <div style={{ flex: 1, minWidth: 90 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: theme.colors.text.muted, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 5 }}>Spread avg</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: theme.colors.text.primary, fontFamily: theme.fonts.heading, letterSpacing: "-0.5px" }}>₹{spreadAvg.toFixed(2)}</div>
+                    <div style={{ fontSize: 11, color: theme.colors.text.muted }}>Petrol premium</div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 // ─── Page ─────────────────────────────────────────────────────
@@ -97,21 +380,8 @@ const FuelPricesPage: React.FC = () => {
     }, []);
 
     if (loading || !fuelSummary) {
-         return <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: theme.colors.text.muted, fontFamily: theme.fonts.body }}>Loading fuel data...</div>;
+        return <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: theme.colors.text.muted, fontFamily: theme.fonts.body }}>Loading fuel data...</div>;
     }
-
-    const chartBars = chartDataMap[trendTab] || [];
-    // Normalize bars relative to visible max so bars fill the chart nicely
-    const maxBar = Math.max(...chartBars.flatMap((b: any) => [b.diesel, b.petrol]));
-    const minBar = Math.min(...chartBars.flatMap((b: any) => [b.diesel, b.petrol]));
-    const range = maxBar - minBar || 1;
-
-    // For yearly tab use full range; for recent/monthly use relative to min for detail
-    const isYearly = trendTab === "Yearly";
-    const barHeight = (val: number) =>
-        isYearly
-            ? Math.round((val / maxBar) * MAX_HEIGHT)
-            : Math.round(((val - minBar) / range) * (MAX_HEIGHT * 0.7) + MAX_HEIGHT * 0.15);
 
     const dieselChange = fuelSummary.dieselChangePct;
     const petrolChange = fuelSummary.petrolChangePct;
@@ -194,14 +464,11 @@ const FuelPricesPage: React.FC = () => {
                                     {petrolChange >= 0 ? "↑" : "↓"} {petrolChange >= 0 ? "+" : ""}{petrolChange}%
                                 </span>
                             </div>
-
-                            {/* Daily Range */}
                             <div>
                                 <div style={{ fontSize: 10, fontWeight: 700, color: theme.colors.text.muted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8 }}>
                                     2025 Price Range
                                 </div>
                                 <div style={{ position: "relative", height: 6, background: "#e8e8e8", borderRadius: 4, marginBottom: 8, overflow: "hidden" }}>
-                                    {/* fill proportional to min/max within the year */}
                                     <div style={{
                                         position: "absolute",
                                         left: `${((fuelSummary.petrolMin - 100) / (fuelSummary.petrolMax - 100)) * 10}%`,
@@ -223,49 +490,25 @@ const FuelPricesPage: React.FC = () => {
                 {/* ── Chart + Check Local Pumps ──────────────────────── */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 18, marginBottom: 22 }}>
 
-                    <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "22px 26px", boxShadow: theme.shadow.card }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
-                            <div>
-                                <div style={{ fontWeight: 800, fontSize: 17, color: theme.colors.text.primary, fontFamily: theme.fonts.heading }}>Price Trend Comparison</div>
-                                <div style={{ fontSize: 12, color: theme.colors.text.muted, marginTop: 3 }}>{tabSubtitles[trendTab]}</div>
-                            </div>
-                            <div style={{ display: "flex", gap: 3, background: theme.colors.neutralLight, borderRadius: theme.radius.full, padding: "3px" }}>
+                    {/* Chart card with tab switcher header */}
+                    <div>
+                        {/* Tab switcher lives above the FuelChart component */}
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+                            <div style={{ display: "flex", gap: 3, background: theme.colors.neutralLight, borderRadius: theme.radius.full, padding: "3px", border: `1px solid ${theme.colors.neutralBorder}` }}>
                                 {TREND_TABS.map(tab => (
                                     <button key={tab} onClick={() => setTrendTab(tab)}
-                                        style={{ padding: "6px 14px", borderRadius: theme.radius.full, border: "none", background: trendTab === tab ? theme.colors.primary : "transparent", color: trendTab === tab ? theme.colors.white : theme.colors.text.secondary, fontWeight: 700, fontSize: 12.5, cursor: "pointer", fontFamily: theme.fonts.body, transition: "all 0.15s" }}>
+                                        style={{
+                                            padding: "6px 14px", borderRadius: theme.radius.full, border: "none",
+                                            background: trendTab === tab ? theme.colors.primary : "transparent",
+                                            color: trendTab === tab ? theme.colors.white : theme.colors.text.secondary,
+                                            fontWeight: 700, fontSize: 12.5, cursor: "pointer", fontFamily: theme.fonts.body, transition: "all 0.15s"
+                                        }}>
                                         {tab}
                                     </button>
                                 ))}
                             </div>
                         </div>
-
-                        {/* Grouped bar chart */}
-                        <div style={{ display: "flex", alignItems: "flex-end", gap: trendTab === "Yearly" ? 6 : 10, height: MAX_HEIGHT + 28, paddingBottom: 24, position: "relative" }}>
-                            {chartBars.map((bar: any, i: number) => {
-                                const dH = barHeight(bar.diesel);
-                                const pH = barHeight(bar.petrol);
-                                return (
-                                    <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", gap: 5, position: "relative" }}>
-                                        <div style={{ display: "flex", alignItems: "flex-end", gap: trendTab === "Yearly" ? 2 : 4, width: "100%" }}>
-                                            <div style={{ flex: 1, height: dH, borderRadius: "6px 6px 4px 4px", background: theme.colors.primary, transition: "height 0.4s ease", minHeight: 4 }} title={`₹${bar.diesel}`} />
-                                            <div style={{ flex: 1, height: pH, borderRadius: "6px 6px 4px 4px", background: theme.colors.secondary, transition: "height 0.4s ease", minHeight: 4 }} title={`₹${bar.petrol}`} />
-                                        </div>
-                                        <div style={{ position: "absolute", bottom: 0, fontSize: trendTab === "Yearly" ? 9 : 10.5, color: theme.colors.text.muted, fontWeight: 600, letterSpacing: "0.2px", whiteSpace: "nowrap" }}>{bar.label}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Legend + note */}
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginTop: 4 }}>
-                            {[{ label: "Diesel (HSD)", color: theme.colors.primary }, { label: "Petrol", color: theme.colors.secondary }].map(({ label, color }) => (
-                                <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
-                                    <span style={{ fontSize: 12, color: theme.colors.text.secondary, fontWeight: 600 }}>{label}</span>
-                                </div>
-                            ))}
-                            <span style={{ fontSize: 10.5, color: theme.colors.text.muted, marginLeft: 8 }}>₹/Litre</span>
-                        </div>
+                        <FuelChart trendTab={trendTab} chartDataMap={chartDataMap} fuelSummary={fuelSummary} />
                     </div>
 
                     {/* Check Local Pumps */}
@@ -295,7 +538,6 @@ const FuelPricesPage: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Header */}
                     <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 80px", gap: 8, paddingBottom: 12, borderBottom: `1px solid ${theme.colors.neutralBorder}`, marginBottom: 4, background: theme.colors.neutralLight, padding: "10px 8px", borderRadius: theme.radius.sm }}>
                         {["REGION / ZONE", "DIESEL (AVG)", "PETROL (AVG)", "MOM CHANGE", "TREND"].map(h => (
                             <div key={h} style={{ fontSize: 10.5, fontWeight: 700, color: theme.colors.text.muted, letterSpacing: "0.6px", textTransform: "uppercase" }}>{h}</div>
@@ -322,7 +564,6 @@ const FuelPricesPage: React.FC = () => {
 
                 {/* ── Bottom Banners ─────────────────────────────────── */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-                    {/* Crude Outlook */}
                     <div style={{ background: `linear-gradient(135deg, ${theme.colors.primaryDark} 0%, ${theme.colors.primary} 100%)`, borderRadius: theme.radius.lg, padding: "24px 28px", color: theme.colors.white, display: "flex", gap: 18, alignItems: "flex-start", boxShadow: theme.shadow.elevated, position: "relative", overflow: "hidden" }}>
                         <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)", backgroundSize: "10px 10px" }} />
                         <div style={{ flexShrink: 0, opacity: 0.9, position: "relative", zIndex: 1, marginTop: 4 }}><GlobeIcon /></div>
@@ -337,7 +578,6 @@ const FuelPricesPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Bulk Purchase */}
                     <div style={{ borderRadius: theme.radius.lg, padding: "28px 28px", background: "linear-gradient(135deg, #2a1800 0%, #5a3200 100%)", color: theme.colors.white, display: "flex", flexDirection: "column", justifyContent: "center", gap: 10, boxShadow: theme.shadow.card, position: "relative", overflow: "hidden" }}>
                         <div style={{ position: "absolute", inset: 0, opacity: 0.12, backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='7' r='1'/%3E%3Ccircle cx='47' cy='7' r='1'/%3E%3Ccircle cx='17' cy='17' r='1'/%3E%3Ccircle cx='37' cy='17' r='1'/%3E%3C/g%3E%3C/svg%3E\")" }} />
                         <div style={{ position: "relative", zIndex: 1 }}>

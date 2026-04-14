@@ -12,6 +12,7 @@ import MarketPricesPage from "./pages/MarketPricesPage";
 import MarketForecastPage from "./pages/MarketForecastPage";
 import { Auth } from "./pages/Auth";
 import { useAuth } from "./context/AuthContext";
+import FertileDataFramework from "./pages/LandingPage";
 
 interface SearchPlaceholders {
   [key: string]: string;
@@ -67,13 +68,13 @@ const MainLayout: React.FC = () => {
 
   const renderPage = (): React.ReactNode => {
     switch (activePage) {
-      case "dashboard":        return <DashboardPage />;
-      case "msp-tracker":     return <MSPTrackerPage />;
-      case "fuel-prices":     return <FuelPricesPage />;
-      case "weather-forecast":return <WeatherForecastPage />;
-      case "market-prices":   return <MarketPricesPage />;
+      case "dashboard": return <DashboardPage onNavigate={setActivePage} />;
+      case "msp-tracker": return <MSPTrackerPage />;
+      case "fuel-prices": return <FuelPricesPage />;
+      case "weather-forecast": return <WeatherForecastPage />;
+      case "market-prices": return <MarketPricesPage />;
       case "market-forecast": return <MarketForecastPage />;
-      default:                return <ComingSoon title={pageLabels[activePage]} />;
+      default: return <ComingSoon title={pageLabels[activePage]} />;
     }
   };
 
@@ -132,6 +133,8 @@ const App: React.FC = () => {
         path="/*"
         element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" replace />}
       />
+
+      <Route path="/" element={<FertileDataFramework />} />
     </Routes>
   );
 };

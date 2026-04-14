@@ -1,19 +1,32 @@
 // frontend/pages/MSPTrackerPage.tsx
-// Drop-in replacement — wires the real API data through mspService
-
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import type { CropCategory, SortOption } from "../types/msp";
 import { fetchLatestMSP, fetchMSPTrend, toMSPCrops } from "../services/mspService";
 import { theme } from "../styles/theme";
-import Sparkline from "../components/ui/Sparkline";
-import MSPGrowthChart from "../components/ui/MSPGrowthChart";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    LineController,
+    Filler,
+    Tooltip as ChartTooltip,
+    type TooltipModel,
+    type Chart,
+} from "chart.js";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    LineController,
+    Filler,
+    ChartTooltip
+);
 
 // ─── Icons ────────────────────────────────────────────────────
-const FilterIcon: React.FC = () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
-    </svg>
-);
 const ExportIcon: React.FC = () => (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
@@ -34,6 +47,186 @@ const ChevronLeftIcon: React.FC = () => (
 const ChevronRightIcon: React.FC = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
 );
+
+// ─── Inline Sparkline (pure SVG — no lib overhead per row) ───
+const Sparkline: React.FC<{ points: number[]; color?: string; width?: number; height?: number }> = ({
+    points, color = theme.colors.primary, width = 80, height = 32,
+}) => {
+    if (!points || points.length < 2) {
+        return (
+            <svg width={width} height={height}>
+                <line x1="4" y1={height / 2} x2={width - 4} y2={height / 2} stroke="#ddd" strokeWidth="1.5" />
+            </svg>
+        );
+    }
+    const min = Math.min(...points);
+    const max = Math.max(...points);
+    const range = max - min || 1;
+    const pad = 4;
+    const xs = points.map((_, i) => pad + (i / (points.length - 1)) * (width - pad * 2));
+    const ys = points.map(v => height - pad - ((v - min) / range) * (height - pad * 2));
+    const linePath = xs.map((x, i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ");
+    const areaPath = `${linePath} L${xs[xs.length - 1].toFixed(1)},${(height - pad).toFixed(1)} L${xs[0].toFixed(1)},${(height - pad).toFixed(1)} Z`;
+    const gradId = `sg${color.replace(/[^a-z0-9]/gi, "")}`;
+    return (
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+            <defs>
+                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+                    <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </linearGradient>
+            </defs>
+            <path d={areaPath} fill={`url(#${gradId})`} />
+            <path d={linePath} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="2.5" fill={color} />
+        </svg>
+    );
+};
+
+// ─── MSP Growth Chart (Chart.js) ─────────────────────────────
+interface GrowthDataPoint { year: string; value: number; }
+
+const MSPGrowthChart: React.FC<{ data: GrowthDataPoint[]; cropName: string }> = ({ data, cropName }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const chartRef = useRef<Chart | null>(null);
+    const wrapRef = useRef<HTMLDivElement>(null);
+    const [tooltip, setTooltip] = useState<{
+        visible: boolean; x: number; y: number; year: string; value: number; growth: string;
+    }>({ visible: false, x: 0, y: 0, year: "", value: 0, growth: "" });
+
+    const values = data.map(d => d.value);
+    const first = values[0] ?? 0;
+    const last = values[values.length - 1] ?? 0;
+    const totalGrowth = first ? (((last - first) / first) * 100).toFixed(1) : "—";
+    const peak = Math.max(...values);
+    const peakYear = data.find(d => d.value === peak)?.year ?? "—";
+    const cagr = first && data.length > 1
+        ? (((last / first) ** (1 / (data.length - 1)) - 1) * 100).toFixed(1)
+        : "—";
+
+    useEffect(() => {
+        if (!canvasRef.current || data.length === 0) return;
+        if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; }
+
+        const labels = data.map(d => d.year.slice(0, 4));
+        const vals = data.map(d => d.value);
+
+        chartRef.current = new ChartJS(canvasRef.current, {
+            type: "line",
+            data: {
+                labels,
+                datasets: [{
+                    label: cropName,
+                    data: vals,
+                    borderColor: theme.colors.primary,
+                    backgroundColor: "rgba(24,95,165,0.07)",
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: theme.colors.primary,
+                    pointHoverBorderColor: "#fff",
+                    pointHoverBorderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 500, easing: "easeInOutQuart" },
+                interaction: { mode: "index", intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: false,
+                        external: ({ chart, tooltip: tip }: { chart: Chart; tooltip: TooltipModel<any> }) => {
+                            if (tip.opacity === 0) { setTooltip(prev => ({ ...prev, visible: false })); return; }
+                            const idx = tip.dataPoints?.[0]?.dataIndex ?? 0;
+                            const curr = vals[idx];
+                            const prev = vals[idx - 1];
+                            const growthStr = prev ? `+${(((curr - prev) / prev) * 100).toFixed(1)}%` : "—";
+                            const wrapRect = wrapRef.current?.getBoundingClientRect();
+                            const canvasRect = chart.canvas.getBoundingClientRect();
+                            const relX = canvasRect.left - (wrapRect?.left ?? 0) + tip.caretX;
+                            setTooltip({ visible: true, x: relX, y: tip.caretY, year: data[idx]?.year ?? "", value: curr, growth: growthStr });
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { color: "rgba(0,0,0,0.35)", font: { size: 11 }, maxTicksLimit: 7, maxRotation: 0, autoSkip: true }
+                    },
+                    y: {
+                        grid: { color: "rgba(0,0,0,0.04)" },
+                        border: { display: false },
+                        ticks: {
+                            color: "rgba(0,0,0,0.35)",
+                            font: { size: 11 },
+                            maxTicksLimit: 5,
+                            callback: (v: number) => `₹${(v / 1000).toFixed(1)}k`
+                        }
+                    }
+                }
+            }
+        }) as Chart;
+
+        return () => { chartRef.current?.destroy(); chartRef.current = null; };
+    }, [data, cropName]);
+
+    return (
+        <div>
+            {/* Stat pills */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
+                {[
+                    { label: "Total growth", value: `+${totalGrowth}%`, accent: theme.colors.primary },
+                    { label: "CAGR", value: `${cagr}% / yr`, accent: "#2E7D32" },
+                    { label: "Peak year", value: peakYear, accent: "#BA7517" },
+                    { label: "Peak MSP", value: `₹${peak.toLocaleString("en-IN")}`, accent: "#6d3a9f" },
+                ].map(({ label, value, accent }) => (
+                    <div key={label} style={{ background: theme.colors.neutralLight, borderRadius: theme.radius.full, padding: "5px 13px", display: "flex", gap: 6, alignItems: "center", border: `1px solid ${theme.colors.neutralBorder}` }}>
+                        <span style={{ fontSize: 10, color: theme.colors.text.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>{label}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: accent, fontFamily: theme.fonts.heading }}>{value}</span>
+                    </div>
+                ))}
+            </div>
+
+            {/* Canvas */}
+            <div ref={wrapRef} style={{ position: "relative", height: 180 }}>
+                <canvas ref={canvasRef} role="img" aria-label={`MSP growth trend for ${cropName}`} />
+                {tooltip.visible && (
+                    <div style={{
+                        position: "absolute",
+                        left: Math.min(tooltip.x + 12, 330),
+                        top: Math.max(tooltip.y - 44, 0),
+                        pointerEvents: "none",
+                        background: theme.colors.white,
+                        border: `1px solid ${theme.colors.neutralBorder}`,
+                        borderRadius: 8,
+                        padding: "9px 14px",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
+                        zIndex: 10,
+                        whiteSpace: "nowrap",
+                    }}>
+                        <div style={{ fontSize: 10.5, color: theme.colors.text.muted, fontWeight: 600, marginBottom: 5 }}>{tooltip.year}</div>
+                        <div style={{ fontWeight: 800, fontSize: 15, color: theme.colors.text.primary, fontFamily: theme.fonts.heading }}>
+                            ₹{tooltip.value.toLocaleString("en-IN")}
+                            <span style={{ fontSize: 11, fontWeight: 600, color: "#2E7D32", marginLeft: 8 }}>{tooltip.growth}</span>
+                        </div>
+                        <div style={{ fontSize: 10.5, color: theme.colors.text.muted, marginTop: 2 }}>per quintal</div>
+                    </div>
+                )}
+            </div>
+
+            {/* Range label */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                <span style={{ fontSize: 10.5, color: theme.colors.text.muted }}>{data[0]?.year}</span>
+                <span style={{ fontSize: 10.5, color: theme.colors.text.muted }}>{data[data.length - 1]?.year}</span>
+            </div>
+        </div>
+    );
+};
 
 // ─── Helpers ──────────────────────────────────────────────────
 const CATEGORIES: CropCategory[] = ["All Crops", "Cereals", "Pulses", "Oilseeds"];
@@ -57,12 +250,11 @@ const MSPTrackerPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 4;
 
-    // ── API state
     const [mspCrops, setMspCrops] = useState<ReturnType<typeof toMSPCrops>>([]);
     const [activeSeason, setActiveSeason] = useState("Kharif 2024");
     const [avgIncrease, setAvgIncrease] = useState("—");
     const [highestCrop, setHighestCrop] = useState({ name: "—", msp: 0 });
-    const [mspGrowthData, setMspGrowthData] = useState<any[]>([]);
+    const [mspGrowthData, setMspGrowthData] = useState<GrowthDataPoint[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -70,49 +262,34 @@ const MSPTrackerPage: React.FC = () => {
         (async () => {
             try {
                 setLoading(true);
-
-                // 1. Fetch latest MSP for all crops
                 const { data: latest, year } = await fetchLatestMSP();
                 const crops = toMSPCrops(latest);
 
-                // 2. For each crop, fetch trend and embed sparkline points
                 const cropsWithTrend = await Promise.all(
                     crops.map(async (crop) => {
                         try {
                             const { trend } = await fetchMSPTrend(crop.name);
                             return { ...crop, trendPoints: trend.map((t: any) => t.msp), rawTrend: trend };
                         } catch {
-                            return crop; // trend optional
+                            return crop;
                         }
                     })
                 );
 
                 setMspCrops(cropsWithTrend);
 
-                // Dynamically build MSP Growth graph for the Top Crop
                 const topCrop = [...latest].sort((a, b) => b.currentMSP - a.currentMSP)[0];
                 setHighestCrop({ name: topCrop.commodity, msp: topCrop.currentMSP });
 
                 const topCropData: any = cropsWithTrend.find(c => c.name === topCrop.commodity);
-                const topCropTrend = topCropData?.rawTrend;
-                if (topCropTrend) {
-                    const mappedGraph = topCropTrend.map((t: any) => ({
-                        year: t.year, // "2013-14"
-                        value: t.msp
-                    }));
-                    setMspGrowthData(mappedGraph);
-                } else {
-                    setMspGrowthData([]);
+                if (topCropData?.rawTrend) {
+                    setMspGrowthData(topCropData.rawTrend.map((t: any) => ({ year: t.year, value: t.msp })));
                 }
 
-                // 3. Compute summary stats
                 const changes = latest.map((c) => parseFloat(c.changePct));
                 const avg = (changes.reduce((s, v) => s + v, 0) / changes.length).toFixed(1);
                 setAvgIncrease(`+${avg}%`);
-
-                // Derive season label from year string e.g. "2024-25" → "Kharif 2024"
-                const yearLabel = year.split("-")[0];
-                setActiveSeason(`Kharif ${yearLabel}`);
+                setActiveSeason(`Kharif ${year.split("-")[0]}`);
             } catch (e: any) {
                 setError(e.message ?? "Failed to load MSP data");
             } finally {
@@ -121,7 +298,6 @@ const MSPTrackerPage: React.FC = () => {
         })();
     }, []);
 
-    // ── Filter + Sort
     const filtered = useMemo(() => {
         let list = activeCategory === "All Crops"
             ? mspCrops
@@ -137,24 +313,14 @@ const MSPTrackerPage: React.FC = () => {
 
     const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
     const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
     const handleCategoryChange = (cat: CropCategory) => { setActiveCategory(cat); setCurrentPage(1); };
 
-    // ── Loading / error states
-    if (loading) {
-        return (
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: theme.fonts.body, color: theme.colors.text.muted, fontSize: 15 }}>
-                Loading MSP data…
-            </div>
-        );
-    }
-    if (error) {
-        return (
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: theme.fonts.body, color: "red", fontSize: 15 }}>
-                Error: {error}
-            </div>
-        );
-    }
+    if (loading) return (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: theme.fonts.body, color: theme.colors.text.muted, fontSize: 15 }}>Loading MSP data…</div>
+    );
+    if (error) return (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: theme.fonts.body, color: "red", fontSize: 15 }}>Error: {error}</div>
+    );
 
     return (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: theme.colors.neutralLight, fontFamily: theme.fonts.body }}>
@@ -171,15 +337,12 @@ const MSPTrackerPage: React.FC = () => {
                     </div>
                     <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 4 }}>
                         <button style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 16px", border: `1px solid ${theme.colors.neutralBorder}`, borderRadius: theme.radius.full, background: theme.colors.white, fontSize: 13, fontWeight: 600, color: theme.colors.neutral, cursor: "pointer", fontFamily: theme.fonts.body }}>
-                            <FilterIcon /> Filter
-                        </button>
-                        <button style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 16px", border: `1px solid ${theme.colors.neutralBorder}`, borderRadius: theme.radius.full, background: theme.colors.white, fontSize: 13, fontWeight: 600, color: theme.colors.neutral, cursor: "pointer", fontFamily: theme.fonts.body }}>
                             <ExportIcon /> Export
                         </button>
                     </div>
                 </div>
 
-                {/* ── Summary Stats (live data) ────────────────────── */}
+                {/* ── Summary Stats ────────────────────────────────── */}
                 <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
                     <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "14px 20px", display: "flex", alignItems: "center", gap: 12, boxShadow: theme.shadow.card }}>
                         <div style={{ width: 36, height: 36, borderRadius: theme.radius.md, background: theme.colors.primaryMuted, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>↗</div>
@@ -282,7 +445,7 @@ const MSPTrackerPage: React.FC = () => {
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}
-                                style={{ width: 30, height: 30, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.neutralBorder}`, background: currentPage === 1 ? "#f5f5f5" : theme.colors.white, cursor: currentPage === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: currentPage === 1 ? theme.colors.text.muted : theme.colors.text.primary, opacity: currentPage === 1 ? 0.5 : 1 }}>
+                                style={{ width: 30, height: 30, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.neutralBorder}`, background: currentPage === 1 ? "#f5f5f5" : theme.colors.white, cursor: currentPage === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: currentPage === 1 ? 0.5 : 1 }}>
                                 <ChevronLeftIcon />
                             </button>
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
@@ -292,7 +455,7 @@ const MSPTrackerPage: React.FC = () => {
                                 </button>
                             ))}
                             <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0}
-                                style={{ width: 30, height: 30, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.neutralBorder}`, background: currentPage === totalPages ? "#f5f5f5" : theme.colors.white, cursor: currentPage === totalPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: currentPage === totalPages ? theme.colors.text.muted : theme.colors.text.primary, opacity: currentPage === totalPages ? 0.5 : 1 }}>
+                                style={{ width: 30, height: 30, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.neutralBorder}`, background: currentPage === totalPages ? "#f5f5f5" : theme.colors.white, cursor: currentPage === totalPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: currentPage === totalPages ? 0.5 : 1 }}>
                                 <ChevronRightIcon />
                             </button>
                         </div>
@@ -302,18 +465,28 @@ const MSPTrackerPage: React.FC = () => {
                 {/* ── Bottom Row ──────────────────────────────────── */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 18, marginTop: 22 }}>
                     <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "22px 24px", boxShadow: theme.shadow.card }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                             <span style={{ fontSize: 18 }}>🌾</span>
-                            <div style={{ fontWeight: 800, fontSize: 16, color: theme.colors.text.primary, fontFamily: theme.fonts.heading }}>
-                                MSP Growth Trend ({mspGrowthData.length > 0 ? `${mspGrowthData[0].year} to ${mspGrowthData[mspGrowthData.length - 1].year}` : 'Historical'})
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: 16, color: theme.colors.text.primary, fontFamily: theme.fonts.heading }}>
+                                    MSP Growth Trend — {highestCrop.name}
+                                </div>
+                                <div style={{ fontSize: 11.5, color: theme.colors.text.muted, marginTop: 2 }}>
+                                    {mspGrowthData.length > 0
+                                        ? `${mspGrowthData[0].year} to ${mspGrowthData[mspGrowthData.length - 1].year} · hover for year-on-year detail`
+                                        : "Historical data"}
+                                </div>
                             </div>
                         </div>
                         {mspGrowthData.length > 0 ? (
-                            <MSPGrowthChart data={mspGrowthData} />
+                            <MSPGrowthChart data={mspGrowthData} cropName={highestCrop.name} />
                         ) : (
-                            <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center", color: theme.colors.text.muted, fontSize: 13 }}>Sufficient trend data unavailable for this crop.</div>
+                            <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center", color: theme.colors.text.muted, fontSize: 13 }}>
+                                Sufficient trend data unavailable for this crop.
+                            </div>
                         )}
                     </div>
+
                     <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "22px 22px", boxShadow: theme.shadow.card, display: "flex", flexDirection: "column", gap: 14 }}>
                         <div style={{ fontWeight: 800, fontSize: 16, color: theme.colors.text.primary, fontFamily: theme.fonts.heading }}>Market Alert</div>
                         <div style={{ fontSize: 13, color: theme.colors.text.secondary, lineHeight: 1.55 }}>Recommendations based on current MSP shifts and weather patterns.</div>

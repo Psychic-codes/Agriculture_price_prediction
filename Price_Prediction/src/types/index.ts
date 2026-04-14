@@ -53,6 +53,7 @@ export interface StatWidgetProps {
     subtitle: string;
     trailingIcon?: string;
     trailingColor?: string;
+    onClick?: () => void;
 }
 
 // ─── Theme ────────────────────────────────────────────────────

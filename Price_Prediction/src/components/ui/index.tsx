@@ -5,17 +5,23 @@ import { theme } from "../../styles/theme";
 // ─── WeatherCard ──────────────────────────────────────────────
 interface WeatherCardProps {
     data: WeatherData;
+    onClick?: () => void;
 }
 
-export const WeatherCard: React.FC<WeatherCardProps> = ({ data }) => (
+export const WeatherCard: React.FC<WeatherCardProps> = ({ data, onClick }) => (
     <div
+        onClick={onClick}
         style={{
             background: theme.colors.primary,
             borderRadius: theme.radius.lg,
             padding: "20px 22px",
             color: theme.colors.white,
             boxShadow: theme.shadow.elevated,
+            cursor: onClick ? "pointer" : "default",
+            transition: onClick ? "transform 0.1s" : "none"
         }}
+        onMouseEnter={e => onClick && (e.currentTarget.style.transform = "scale(1.02)")}
+        onMouseLeave={e => onClick && (e.currentTarget.style.transform = "scale(1)")}
     >
         <div
             style={{
@@ -182,8 +188,10 @@ export const StatWidget: React.FC<StatWidgetProps> = ({
     subtitle,
     trailingIcon,
     trailingColor,
+    onClick,
 }) => (
     <div
+        onClick={onClick}
         style={{
             background: theme.colors.white,
             borderRadius: theme.radius.lg,
@@ -192,7 +200,11 @@ export const StatWidget: React.FC<StatWidgetProps> = ({
             alignItems: "center",
             gap: 14,
             boxShadow: theme.shadow.card,
+            cursor: onClick ? "pointer" : "default",
+            transition: onClick ? "transform 0.1s" : "none"
         }}
+        onMouseEnter={e => onClick && (e.currentTarget.style.transform = "scale(1.02)")}
+        onMouseLeave={e => onClick && (e.currentTarget.style.transform = "scale(1)")}
     >
         <div
             style={{

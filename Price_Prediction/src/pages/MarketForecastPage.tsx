@@ -38,7 +38,7 @@ const ForecastChart: React.FC<{ points: any[]; color: string; }> = ({
     // Historical path
     const histPts = points.map((p, i) => p.historical != null ? { x: toX(i), y: toY(p.historical) } : null).filter(Boolean) as { x: number; y: number }[];
     const histPath = histPts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
-    
+
     // Predicted path
     const predIdxStart = points.findIndex(p => p.predicted != null && p.historical != null);
     const predPts = points.map((p, i) => {
@@ -48,42 +48,42 @@ const ForecastChart: React.FC<{ points: any[]; color: string; }> = ({
         return v != null ? { x: toX(i), y: toY(v) } : null;
     }).filter(Boolean) as { x: number; y: number }[];
     const predPath = predPts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
-    
+
     // Prediction 95% Confidence Band
     const bandPts = points.map((p, i) => {
-         if (p.predicted == null && p.historical == null) return null;
-         if (p.lowerBound == null || p.upperBound == null) {
-              const v = p.predicted ?? p.historical;
-              return v != null ? { x: toX(i), yL: toY(v), yU: toY(v) } : null;
-         }
-         return { x: toX(i), yL: toY(p.lowerBound), yU: toY(p.upperBound) };
+        if (p.predicted == null && p.historical == null) return null;
+        if (p.lowerBound == null || p.upperBound == null) {
+            const v = p.predicted ?? p.historical;
+            return v != null ? { x: toX(i), yL: toY(v), yU: toY(v) } : null;
+        }
+        return { x: toX(i), yL: toY(p.lowerBound), yU: toY(p.upperBound) };
     }).filter(Boolean) as { x: number; yL: number; yU: number }[];
-    
+
     let bandArea = "";
     if (bandPts.length > 1) {
-         const upP = bandPts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.yU.toFixed(1)}`).join(" ");
-         const lowP = [...bandPts].reverse().map((p) => `L ${p.x.toFixed(1)} ${p.yL.toFixed(1)}`).join(" ");
-         bandArea = `${upP} ${lowP} Z`;
+        const upP = bandPts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.yU.toFixed(1)}`).join(" ");
+        const lowP = [...bandPts].reverse().map((p) => `L ${p.x.toFixed(1)} ${p.yL.toFixed(1)}`).join(" ");
+        bandArea = `${upP} ${lowP} Z`;
     }
 
     const handleMouseMove = (e: React.MouseEvent) => {
-         if (!svgRef.current) return;
-         const rect = svgRef.current.getBoundingClientRect();
-         const scaleX = W / rect.width;
-         const svgX = (e.clientX - rect.left) * scaleX;
-         
-         let closest = 0;
-         let minD = Infinity;
-         points.forEach((_, i) => {
-              const dx = Math.abs(toX(i) - svgX);
-              if (dx < minD) { minD = dx; closest = i; }
-         });
-         setHoverIndex(closest);
+        if (!svgRef.current) return;
+        const rect = svgRef.current.getBoundingClientRect();
+        const scaleX = W / rect.width;
+        const svgX = (e.clientX - rect.left) * scaleX;
+
+        let closest = 0;
+        let minD = Infinity;
+        points.forEach((_, i) => {
+            const dx = Math.abs(toX(i) - svgX);
+            if (dx < minD) { minD = dx; closest = i; }
+        });
+        setHoverIndex(closest);
     };
 
     return (
         <svg ref={svgRef} width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ overflow: "visible" }}
-             onMouseMove={handleMouseMove} onMouseLeave={() => setHoverIndex(null)}>
+            onMouseMove={handleMouseMove} onMouseLeave={() => setHoverIndex(null)}>
             <defs>
                 <linearGradient id="predGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={color} stopOpacity="0.15" />
@@ -121,30 +121,30 @@ const ForecastChart: React.FC<{ points: any[]; color: string; }> = ({
 
             {/* Tooltip Hover Display */}
             {hoverIndex !== null && points[hoverIndex] && (
-                 <g style={{ pointerEvents: 'none' }}>
-                     <line x1={toX(hoverIndex)} y1={padT} x2={toX(hoverIndex)} y2={padT + iH} stroke={theme.colors.primary} strokeWidth="1.5" strokeDasharray="4,4" opacity="0.6" />
-                     {points[hoverIndex].predicted != null && (
-                         <circle cx={toX(hoverIndex)} cy={toY(points[hoverIndex].predicted)} r="5" fill={theme.colors.white} stroke={color} strokeWidth="2.5" />
-                     )}
-                     
-                     <rect x={Math.max(padL, toX(hoverIndex) - 65)} y={padT - 38} width="130" height={points[hoverIndex].lowerBound ? 64 : 26} rx="6" fill="#1e293b" filter="url(#shadow)" opacity="0.95" />
-                     
-                     <text x={Math.max(padL + 65, toX(hoverIndex))} y={padT - 22} fill="#f8fafc" fontSize="11" textAnchor="middle" fontWeight="800" fontFamily={theme.fonts.heading}>
-                          {points[hoverIndex].label.includes('(') ? points[hoverIndex].label.split('(')[1].replace(')', '') : points[hoverIndex].label}
-                     </text>
-                     
-                     {points[hoverIndex].predicted != null && (
-                          <text x={Math.max(padL + 65, toX(hoverIndex))} y={padT - 5} fill="#cbd5e1" fontSize="10.5" textAnchor="middle" fontWeight="bold">
-                               Target: <tspan fill="#38bdf8">₹{points[hoverIndex].predicted.toFixed(1)}</tspan>
-                          </text>
-                     )}
-                     
-                     {points[hoverIndex].lowerBound != null && (
-                          <text x={Math.max(padL + 65, toX(hoverIndex))} y={padT + 12} fill="#94a3b8" fontSize="9" textAnchor="middle" letterSpacing="0.2">
-                               LB: {points[hoverIndex].lowerBound.toFixed(1)} | UB: {points[hoverIndex].upperBound.toFixed(1)}
-                          </text>
-                     )}
-                 </g>
+                <g style={{ pointerEvents: 'none' }}>
+                    <line x1={toX(hoverIndex)} y1={padT} x2={toX(hoverIndex)} y2={padT + iH} stroke={theme.colors.primary} strokeWidth="1.5" strokeDasharray="4,4" opacity="0.6" />
+                    {points[hoverIndex].predicted != null && (
+                        <circle cx={toX(hoverIndex)} cy={toY(points[hoverIndex].predicted)} r="5" fill={theme.colors.white} stroke={color} strokeWidth="2.5" />
+                    )}
+
+                    <rect x={Math.max(padL, toX(hoverIndex) - 65)} y={padT - 38} width="130" height={points[hoverIndex].lowerBound ? 64 : 26} rx="6" fill="#1e293b" filter="url(#shadow)" opacity="0.95" />
+
+                    <text x={Math.max(padL + 65, toX(hoverIndex))} y={padT - 22} fill="#f8fafc" fontSize="11" textAnchor="middle" fontWeight="800" fontFamily={theme.fonts.heading}>
+                        {points[hoverIndex].label.includes('(') ? points[hoverIndex].label.split('(')[1].replace(')', '') : points[hoverIndex].label}
+                    </text>
+
+                    {points[hoverIndex].predicted != null && (
+                        <text x={Math.max(padL + 65, toX(hoverIndex))} y={padT - 5} fill="#cbd5e1" fontSize="10.5" textAnchor="middle" fontWeight="bold">
+                            Target: <tspan fill="#38bdf8">₹{points[hoverIndex].predicted.toFixed(1)}</tspan>
+                        </text>
+                    )}
+
+                    {points[hoverIndex].lowerBound != null && (
+                        <text x={Math.max(padL + 65, toX(hoverIndex))} y={padT + 12} fill="#94a3b8" fontSize="9" textAnchor="middle" letterSpacing="0.2">
+                            LB: {points[hoverIndex].lowerBound.toFixed(1)} | UB: {points[hoverIndex].upperBound.toFixed(1)}
+                        </text>
+                    )}
+                </g>
             )}
 
             {/* X-axis labels */}
@@ -193,7 +193,7 @@ const MarketForecastPage: React.FC = () => {
 
     const [mlData, setMlData] = useState<Record<string, ForecastCommodityData>>({});
     const [loading, setLoading] = useState<boolean>(true);
-    const [mlTabs, setMlTabs] = useState<{id: string, label: string, emoji: string}[]>([]);
+    const [mlTabs, setMlTabs] = useState<{ id: string, label: string, emoji: string }[]>([]);
 
     useEffect(() => {
         // Fetch Live ML Forecast Logic natively generated by Python
@@ -202,15 +202,15 @@ const MarketForecastPage: React.FC = () => {
             .then(data => {
                 if (data && data.forecasts) {
                     const parsed: Record<string, ForecastCommodityData> = {};
-                    const tabs: {id: string, label: string, emoji: string}[] = [];
-                    
+                    const tabs: { id: string, label: string, emoji: string }[] = [];
+
                     Object.entries(data.forecasts).forEach(([key, info]: [string, any]) => {
                         const iconMap: Record<string, string> = {
-                            "wheat": "🌾", "rice": "🍚", "tomato": "🍅", 
+                            "wheat": "🌾", "rice": "🍚", "tomato": "🍅",
                             "potato": "🥔", "onion": "🧅", "arhar (tur dal)": "🥘"
                         };
                         const displayEmoji = iconMap[key.toLowerCase()] || "📦";
-                        
+
                         tabs.push({
                             id: key,
                             label: key.toUpperCase(),
@@ -224,8 +224,8 @@ const MarketForecastPage: React.FC = () => {
 
                         // Parse Date format visually
                         const formatDate = (dateStr: string) => {
-                             const dt = new Date(dateStr);
-                             return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                            const dt = new Date(dateStr);
+                            return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
                         };
 
                         // Calculate bounds manually if trajectory isn't null
@@ -234,13 +234,13 @@ const MarketForecastPage: React.FC = () => {
                         ];
                         // Render subset natively for SVG visibility
                         for (let i = 0; i < traj.length; i++) {
-                             points.push({
-                                  label: `D+${traj[i].day_ahead} (${formatDate(traj[i].date)})`,
-                                  historical: null,
-                                  predicted: traj[i].predicted_price,
-                                  lowerBound: traj[i].lower_bound_95,
-                                  upperBound: traj[i].upper_bound_95
-                             });
+                            points.push({
+                                label: `D+${traj[i].day_ahead} (${formatDate(traj[i].date)})`,
+                                historical: null,
+                                predicted: traj[i].predicted_price,
+                                lowerBound: traj[i].lower_bound_95,
+                                upperBound: traj[i].upper_bound_95
+                            });
                         }
 
                         // Attach top price drivers as key predictors
@@ -286,7 +286,7 @@ const MarketForecastPage: React.FC = () => {
                     });
                     setMlData(parsed);
                     setMlTabs(tabs);
-                    
+
                     // Route to first valid key
                     if (tabs.length > 0) setActiveCommodity(tabs[0].id);
                 }
@@ -348,7 +348,7 @@ const MarketForecastPage: React.FC = () => {
                         </button>
                         {/* 30/90 day toggle */}
                         <div style={{ display: "flex", gap: 3, background: theme.colors.white, borderRadius: theme.radius.full, padding: 3, border: `1px solid ${theme.colors.neutralBorder}` }}>
-                            {(["30-Day", "90-Day"] as ForecastView[]).map(v => (
+                            {(["30-Day"] as ForecastView[]).map(v => (
                                 <button key={v} onClick={() => setForecastView(v)}
                                     style={{ padding: "6px 16px", borderRadius: theme.radius.full, border: "none", background: forecastView === v ? theme.colors.primaryDark : "transparent", color: forecastView === v ? "#fff" : theme.colors.text.secondary, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: theme.fonts.body, transition: "all 0.15s" }}>
                                     {v} View
@@ -459,7 +459,7 @@ const MarketForecastPage: React.FC = () => {
                         <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "18px 20px", boxShadow: theme.shadow.card }}>
                             <div style={{ fontWeight: 800, fontSize: 14, color: theme.colors.text.primary, fontFamily: theme.fonts.heading, marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                                 <span>Key Predictors (AI Core)</span>
-                                <span style={{ fontSize: 10, color: theme.colors.primary, textTransform: 'uppercase', letterSpacing: '0.8px', background: theme.colors.primaryMuted, padding: '2px 6px', borderRadius: 4}}>Live SHAP Export</span>
+                                <span style={{ fontSize: 10, color: theme.colors.primary, textTransform: 'uppercase', letterSpacing: '0.8px', background: theme.colors.primaryMuted, padding: '2px 6px', borderRadius: 4 }}>Live SHAP Export</span>
                             </div>
                             {(data.predictors || []).map((kp: any, i: number) => (
                                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 0", borderBottom: i < (data.predictors?.length || 0) - 1 ? `1px solid ${theme.colors.neutralBorder}` : "none" }}>
@@ -478,22 +478,22 @@ const MarketForecastPage: React.FC = () => {
 
                 {/* ── Generated Matplotlib AI Plot Visualization ── */}
                 <div style={{ background: theme.colors.white, borderRadius: theme.radius.lg, padding: "22px 26px", boxShadow: theme.shadow.card, marginBottom: 24, textAlign: 'center' }}>
-                     <div style={{ fontWeight: 800, fontSize: 15, color: theme.colors.text.primary, fontFamily: theme.fonts.heading, textAlign: "left", marginBottom: 16 }}>Native ML Engine Vector Map (30-Day Extrapolated Sequence)</div>
-                     <img 
-                          src={`http://localhost:5000/plots/performance/${activeCommodity.replace(/ /g, '_').replace(/\(|\)/g, '')}_30d_forecast.png`} 
-                          alt="AI Forecast Plot" 
-                          style={{ maxWidth: '100%', height: 'auto', borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.neutralBorder}` }} 
-                     />
+                    <div style={{ fontWeight: 800, fontSize: 15, color: theme.colors.text.primary, fontFamily: theme.fonts.heading, textAlign: "left", marginBottom: 16 }}>Native ML Engine Vector Map (30-Day Extrapolated Sequence)</div>
+                    <img
+                        src={`http://localhost:5000/plots/performance/${activeCommodity.replace(/ /g, '_').replace(/\(|\)/g, '')}_30d_forecast.png`}
+                        alt="AI Forecast Plot"
+                        style={{ maxWidth: '100%', height: 'auto', borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.neutralBorder}` }}
+                    />
                 </div>
 
                 {/* ── Analytical Graphical SHAP Plot Visualization ── */}
                 <div style={{ background: "#0d1117", borderRadius: theme.radius.lg, padding: "22px 26px", boxShadow: theme.shadow.card, marginBottom: 24, textAlign: 'center' }}>
-                     <div style={{ fontWeight: 800, fontSize: 15, color: "#e6edf3", fontFamily: theme.fonts.heading, textAlign: "left", marginBottom: 16 }}>Native Analytical SHAP Distribution (Feature Influence Topology)</div>
-                     <img 
-                          src={`http://localhost:5000/plots/shap/${activeCommodity.replace(/ /g, '_').replace(/\(|\)/g, '')}_shap.png`} 
-                          alt="Live Native SHAP Data" 
-                          style={{ maxWidth: '100%', height: 'auto', borderRadius: theme.radius.md, display: 'block', margin: '0 auto' }} 
-                     />
+                    <div style={{ fontWeight: 800, fontSize: 15, color: "#e6edf3", fontFamily: theme.fonts.heading, textAlign: "left", marginBottom: 16 }}>Native Analytical SHAP Distribution (Feature Influence Topology)</div>
+                    <img
+                        src={`http://localhost:5000/plots/shap/${activeCommodity.replace(/ /g, '_').replace(/\(|\)/g, '')}_shap.png`}
+                        alt="Live Native SHAP Data"
+                        style={{ maxWidth: '100%', height: 'auto', borderRadius: theme.radius.md, display: 'block', margin: '0 auto' }}
+                    />
                 </div>
 
                 {/* ── Training History ──────────────────────────── */}
@@ -501,7 +501,7 @@ const MarketForecastPage: React.FC = () => {
                     {Object.values(mlData).map((item: any) => {
                         const iconMap: any = { "wheat": "🌾", "rice": "🍚", "tomato": "🍅", "potato": "🥔", "onion": "🧅", "arhar (tur dal)": "🥘" };
                         const emoji = iconMap[item.id.toLowerCase()] || "📦";
-                        const isTrained = true; 
+                        const isTrained = true;
                         return (
                             <div key={item.id} style={{ flex: "1 1 calc(33% - 14px)", background: theme.colors.white, borderRadius: theme.radius.lg, padding: "16px 18px", boxShadow: theme.shadow.card, display: "flex", alignItems: "center", gap: 14, border: `1px solid ${theme.colors.neutralBorder}` }}>
                                 <div style={{ width: 52, height: 52, borderRadius: theme.radius.md, background: theme.colors.neutralLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0 }}>
@@ -544,11 +544,11 @@ const MarketForecastPage: React.FC = () => {
                         const cColor = isUp ? theme.colors.status.up : theme.colors.status.down;
                         // Dynamically tag wheat/rice as premium organically
                         const tag = (row.id === 'wheat' || row.id === 'rice') ? "PREMIUM" : undefined;
-                        
+
                         return (
                             <div key={row.id} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1fr 1.5fr", gap: 8, padding: "14px 12px", borderBottom: idx < Object.values(mlData).length - 1 ? `1px solid ${theme.colors.neutralBorder}` : "none", alignItems: "center", transition: "background 0.12s", cursor: "default", background: hoveredRow === idx ? theme.colors.neutralLight : "transparent" }}
-                                 onMouseEnter={() => setHoveredRow(idx)}
-                                 onMouseLeave={() => setHoveredRow(null)}>
+                                onMouseEnter={() => setHoveredRow(idx)}
+                                onMouseLeave={() => setHoveredRow(null)}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                     <div style={{ fontWeight: 800, fontSize: 14, color: theme.colors.text.primary, textTransform: 'capitalize' }}>
                                         {row.id}

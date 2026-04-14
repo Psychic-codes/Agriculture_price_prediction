@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { theme } from "../../styles/theme";
 import { useAuth } from '../../context/AuthContext';
 
@@ -31,7 +32,9 @@ const WheatIcon: React.FC = () => (
 const Navbar: React.FC<NavbarProps> = ({
   searchPlaceholder = "Search crops, regions or trends...",
 }) => {
-  const { isGovernmentUser } = useAuth();
+  const { isGovernmentUser, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  
   return (
     <header
       style={{
@@ -147,25 +150,49 @@ const Navbar: React.FC<NavbarProps> = ({
         + Add Harvest
       </button>}
 
-      {/* Avatar */}
-      <div
-        style={{
-          width: 38,
-          height: 38,
-          borderRadius: "50%",
-          background: `linear-gradient(135deg, ${theme.colors.secondary}, ${theme.colors.primary})`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: theme.colors.white,
-          fontWeight: 800,
-          fontSize: 13,
-          cursor: "pointer",
-          fontFamily: theme.fonts.heading,
-          flexShrink: 0,
-        }}
-      >
-        FD
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <button
+          onClick={() => isAuthenticated ? logout() : navigate('/login')}
+          style={{
+            background: "transparent",
+            color: theme.colors.text.primary,
+            border: `1px solid ${theme.colors.neutralBorder}`,
+            borderRadius: theme.radius.md,
+            padding: "8px 16px",
+            fontWeight: 700,
+            fontSize: 13,
+            cursor: "pointer",
+            fontFamily: theme.fonts.body,
+            transition: "all 0.2s"
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = theme.colors.neutralLight)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          {isAuthenticated ? 'Logout' : 'Login'}
+        </button>
+
+        {/* Avatar */}
+        {isAuthenticated && (
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, ${theme.colors.secondary}, ${theme.colors.primary})`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: theme.colors.white,
+              fontWeight: 800,
+              fontSize: 13,
+              cursor: "pointer",
+              fontFamily: theme.fonts.heading,
+              flexShrink: 0,
+            }}
+          >
+            FD
+          </div>
+        )}
       </div>
     </header>
   );
