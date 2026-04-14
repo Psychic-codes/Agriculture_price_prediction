@@ -339,7 +339,7 @@ final_df["supply_shock_7v30"] = (
 print(" Engineering price lag features (per commodity — no contamination)")
 final_df = final_df.sort_values(["commodity", "date"])
 
-for lag in [3, 7, 14, 30]:
+for lag in [1, 3, 7, 14, 30]:   # price_lag_1 added — single strongest predictor
     final_df[f"price_lag_{lag}"] = (
         final_df.groupby("commodity")["modal_price"].shift(lag)
     )
@@ -500,11 +500,38 @@ final_df = final_df.groupby("commodity", group_keys=False).apply(
 )
 
 # ─────────────────────────────────────────────────────────────
+# SECTION 11c — CROP CALENDAR / HARVEST WINDOW FLAGS
+# Cereal price crashes and spikes are strongly tied to harvest
+# season (wheat: Apr-May rabi harvest; rice/arhar: Oct-Nov kharif).
+# A binary flag gives the model an explicit seasonal anchor rather
+# than relying on month_sin/cos alone.
+# ─────────────────────────────────────────────────────────────
+print(" Engineering crop calendar & year-over-year features")
+
+HARVEST_WINDOWS = {
+    'wheat':           [4, 5],        # Rabi harvest: Apr-May
+    'rice':            [10, 11],      # Kharif harvest: Oct-Nov
+    'arhar (tur dal)': [3, 4, 5],    # Kharif harvest arrives Mar-May
+}
+final_df['is_harvest_window'] = final_df.apply(
+    lambda r: 1 if r['Month_Num'] in HARVEST_WINDOWS.get(r['commodity'], []) else 0,
+    axis=1
+)
+
+# Year-over-year price ratio — leakage-free
+# price_lag_3 (current lagged price) divided by 1-year-ago lagged price.
+# Captures whether the current period is abnormally expensive/cheap vs last year.
+final_df['price_lag_365'] = final_df.groupby('commodity')['modal_price'].shift(365)
+final_df['yoy_price_ratio'] = (
+    final_df['price_lag_3'] / (final_df['price_lag_365'] + 1e-6)
+)
+
+# ─────────────────────────────────────────────────────────────
 # SECTION 12 — NaN FILLING FOR LAG & ROLLING FEATURES
 # ─────────────────────────────────────────────────────────────
 print(" Filling NaN values in lag & rolling features")
 lag_cols = [
-    "price_lag_3", "price_lag_7", "price_lag_14", "price_lag_30",
+    "price_lag_1", "price_lag_3", "price_lag_7", "price_lag_14", "price_lag_30",
     "price_rolling_mean_7", "price_rolling_mean_14", "price_rolling_mean_30",
     "price_volatility_7", "price_volatility_14", "price_volatility_30",
     "price_pct_change_3", "price_pct_change_7", "price_pct_change_30",
@@ -512,7 +539,8 @@ lag_cols = [
     "arrivals_lag_7", "arrivals_pct_change_7",
     "arrival_lag_3", "arrival_rolling_7", "arrival_rolling_14", "arrival_rolling_30",
     "arrival_shock", "supply_stress_index", "supply_shock_7v30",
-    "supply_tightness", "price_relative_strength"
+    "supply_tightness", "price_relative_strength",
+    "yoy_price_ratio",    # NaN for first ~365 days per commodity; bfill handles it
 ]
 lag_cols = [c for c in lag_cols if c in final_df.columns]
 

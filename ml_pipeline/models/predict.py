@@ -22,9 +22,18 @@ def get_forecasts_for_pipeline(feature_csv, model_pkl):
     print(f"[INFO] Loading 30-day multi-output model from {model_pkl}")
     try:
         payload = joblib.load(model_pkl)
-        stacker_model = payload['model']
-        base_estimators = payload['base_estimators']
+        stacker_model     = payload['model']
+        base_estimators   = payload['base_estimators']
         expected_features = payload['features']
+        # Bug 4 Fix: load empirically calibrated CI bounds (added by ML training script)
+        # If absent (old model pkl), fall back to the previous z_scaled formula.
+        ci_lower_q = payload.get('ci_lower_q', None)   # shape (30,) pct offsets
+        ci_upper_q = payload.get('ci_upper_q', None)   # shape (30,) pct offsets
+        if ci_lower_q is not None:
+            print(f"[INFO] Using empirically calibrated CI bounds (day-1: "
+                  f"[{ci_lower_q[0]*100:+.2f}%, {ci_upper_q[0]*100:+.2f}%])")
+        else:
+            print("[INFO] No calibrated CI in model pkl — using legacy z_scaled formula")
     except FileNotFoundError:
         print(f"[ERROR] Model file missing: {model_pkl}")
         return {}
@@ -131,14 +140,21 @@ def get_forecasts_for_pipeline(feature_csv, model_pkl):
             day_offset = d + 1
             forecast_date = base_date + timedelta(days=day_offset)
 
-            target_pct = preds_stacker[i, d]
+            target_pct     = preds_stacker[i, d]
             target_std_pct = std_devs[i, d]
 
             pred_price_abs = base_price * (1 + target_pct)
 
-            z_scaled = Z_SCORE * (1 + 0.03 * d)
-            lower_pct = target_pct - (z_scaled * target_std_pct)
-            upper_pct = target_pct + (z_scaled * target_std_pct)
+            # Bug 4 Fix: use empirically calibrated residual quantiles when available.
+            # Otherwise fall back to the original parametric formula.
+            if ci_lower_q is not None and ci_upper_q is not None:
+                # Quantile offsets are additive in pct-change space.
+                lower_pct = target_pct + ci_lower_q[d]
+                upper_pct = target_pct + ci_upper_q[d]
+            else:
+                z_scaled  = Z_SCORE * (1 + 0.03 * d)   # legacy fallback
+                lower_pct = target_pct - (z_scaled * target_std_pct)
+                upper_pct = target_pct + (z_scaled * target_std_pct)
 
             commodity_data["trajectory"].append({
                 "day_ahead": day_offset,

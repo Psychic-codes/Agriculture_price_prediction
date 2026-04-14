@@ -62,21 +62,42 @@ print(f"  Commod. : {df['commodity'].unique().tolist()}")
 
 
 NUMERIC_FEATURES_WANTED = [
-    'temp_7d_avg',
-     'temp_deviation_14d', 'Diesel_price', 'diesel_lag_7',
-    'diesel_lag_30', 'diesel_pct_change_30', 'fuel_cost_pressure',
-     'seasonal_price_index', 'arrivals_lag_7', 'arrival_lag_3',
+    # Price lags (all shifted >=1 day — no leakage; Bug 2 fix: removed modal_price/min_price/max_price)
+    'price_lag_1', 'price_lag_2', 'price_lag_3', 'price_lag_7', 'price_lag_14',
+    # Rolling price stats
+    'price_rolling_mean_7', 'price_rolling_mean_14', 'price_rolling_mean_30',
+    'price_volatility_7', 'price_volatility_14', 'price_volatility_30',
+    'price_vs_30d_mean',
+    # Price momentum
+    'price_momentum_3', 'price_momentum_7', 'price_momentum_index',
+    'price_pct_change_3', 'price_pct_change_7', 'price_pct_change_14',
+    'price_relative_strength',
+    # Supply/demand
+    'supply_tightness', 'supply_demand_pressure',
+    # Arrival features
+    'arrival_lag_3', 'arrivals_lag_7',
     'arrival_rolling_7', 'arrival_rolling_14', 'arrival_rolling_30',
     'arrival_shock', 'supply_stress_index', 'supply_shock_7v30',
-        'price_rolling_mean_7',
-       'price_rolling_mean_14', 'price_rolling_mean_30', 'price_volatility_7',
-       'price_volatility_14', 'price_volatility_30',
-       'price_pct_change_3', 'price_pct_change_7',
-        'supply_tightness',
-       'supply_demand_pressure', 'price_relative_strength',
+    # Weather (short-cycle — vegetables react to 3-day shocks)
+    'temp_7d_avg', 'temp_deviation_14d', 'temp_shock_3d',
+    'rainfall_7d', 'rainfall_3d_sum', 'rainfall_shock_3d',
+    # Fuel economics
+    'Diesel_price', 'diesel_lag_7', 'diesel_lag_30',
+    'diesel_pct_change_30', 'fuel_cost_pressure',
+    # Time features
+    'Month_Num', 'DayOfYear', 'seasonal_price_index',
+    # Technical indicators
+    'price_ema_7', 'price_ema_14', 'macd', 'macd_signal', 'rsi_14',
+    # Regime features (computed in feature engineering + groupby loop below)
+    'price_regime', 'regime_transition',
+    # New features from Section 11c feature engineering
+    'is_harvest_window', 'yoy_price_ratio',
+    # Regime-robust inline features (computed in groupby loop below)
+    'price_diff_7', 'month_sin', 'month_cos',
+    'price_zscore_365', 'price_norm_trailing', 'price_accel_7',
 ]
 
-NUMERIC_FEATURES = ['modal_price', 'min_price', 'max_price', 'arrivals', 'Change (Tonne)', 'rolling_median_7', 'temperature', 'rainfall', 'rainfall_3d_sum', 'rainfall_7d', 'temp_3d_avg', 'temp_7d_avg', 'rainfall_shock_3d', 'temp_shock_3d', 'Month', 'Petrol_price', 'Diesel_price', 'Year', 'State', 'fuel_transport_pressure', 'price_momentum_3', 'price_momentum_7', 'price_ma_3', 'price_ma_7', 'price_ma_14', 'arrival_ma_7', 'supply_shock_3', 'price_volatility_7', 'price_lag_1', 'arrival_lag_1', 'price_lag_2', 'arrival_lag_2', 'price_lag_3', 'arrival_lag_3', 'Month_Num', 'DayOfYear', 'price_ema_7', 'price_ema_14', 'macd', 'macd_signal', 'rsi_14']
+NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
 
 
 for c_name, grp in df.groupby('commodity'):
@@ -110,16 +131,24 @@ for c_name, grp in df.groupby('commodity'):
     lag15 = price.shift(15)
     df.loc[idx, 'price_accel_7'] = (lag1 - lag8) - (lag8 - lag15)
 
+    # --- IMP 10: Bimodal price regime indicator (always computed, no CSV dependency) ---
+    long_median = lag1.rolling(365, min_periods=60).median()
+    regime      = (lag1 > long_median).fillna(0).astype(int)
+    df.loc[idx, 'price_regime']      = regime
+    regime_flip = regime.diff().abs().fillna(0)
+    df.loc[idx, 'regime_transition'] = (
+        regime_flip.rolling(42, min_periods=1).max().shift(1).fillna(0)
+    )
+
 # Refresh after engineering
-NUMERIC_FEATURES = ['modal_price', 'min_price', 'max_price', 'arrivals', 'Change (Tonne)', 'rolling_median_7', 'temperature', 'rainfall', 'rainfall_3d_sum', 'rainfall_7d', 'temp_3d_avg', 'temp_7d_avg', 'rainfall_shock_3d', 'temp_shock_3d', 'Month', 'Petrol_price', 'Diesel_price', 'Year', 'State', 'fuel_transport_pressure', 'price_momentum_3', 'price_momentum_7', 'price_ma_3', 'price_ma_7', 'price_ma_14', 'arrival_ma_7', 'supply_shock_3', 'price_volatility_7', 'price_lag_1', 'arrival_lag_1', 'price_lag_2', 'arrival_lag_2', 'price_lag_3', 'arrival_lag_3', 'Month_Num', 'DayOfYear', 'price_ema_7', 'price_ema_14', 'macd', 'macd_signal', 'rsi_14']
+NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
 missing_after    = [f for f in NUMERIC_FEATURES_WANTED if f not in df.columns]
 
-print(f"  Features used : {len(NUMERIC_FEATURES)}")
+print(f'  Features used : {len(NUMERIC_FEATURES)}')
 if missing_after:
-    print(f"   Not in CSV (skipped): {missing_after}")
+    print(f'   Not in CSV (skipped): {missing_after}')
 else:
-    print("   All expected features present")
-
+    print('   All expected features present')
 # ── Exogenous features ───────────────────────────────────────────────────────
 SARIMAX_EXOG_WANTED = [
     'msp', 'Diesel_price', 'rainfall_7d', 'temp_7d_avg',
@@ -721,12 +750,24 @@ y_actual_test  = y_actual_global[t2:]
 
 print(f"  Rows -> Train: {len(X_train)}  Val: {len(X_val)}  Test: {len(X_test)}")
 
-tscv = TimeSeriesSplit(n_splits=5, gap=7)
+tscv = TimeSeriesSplit(n_splits=5, gap=30)  # gap=30 matches real 30-day deployment horizon
 best_estimators = {}
+
+# --- Imp 5: Recency-weighted sample weights ---
+# Exponential decay so that recent rows anchor learning more than old rows.
+_train_dates   = df_global.iloc[:t1]['date'].values
+_max_date      = DATE_TRAIN_END
+_days_ago      = np.array([
+    (_max_date - pd.Timestamp(str(d))).days for d in _train_dates
+], dtype=float)
+sample_weight_train = np.exp(-0.001 * _days_ago)   # half-life ~693 days
+sample_weight_train = sample_weight_train / sample_weight_train.mean()
+print(f"  Recency weights : recent/oldest ratio={sample_weight_train.max()/sample_weight_train.min():.1f}x")
 
 for name in ML_MODEL_NAMES:
     print(f"    Tuning {name:<30}", end=" ... ", flush=True)
-    best_est, bp, cv_mae = tune_model(name, X_train, y_train, tscv)
+    best_est, bp, cv_mae = tune_model(name, X_train, y_train, tscv,
+                                      sample_weight=sample_weight_train)
     best_estimators[name] = best_est
     print(f"CV pseudo-MAE={cv_mae:.4f}  {bp}")
 
@@ -739,17 +780,17 @@ from sklearn.multioutput import MultiOutputRegressor
 # Thus, StackingRegressor must be wrapped inside MultiOutputRegressor, which handles the 
 # 30 output columns individually. We pass base 1D estimators to the StackingRegressor.
 
+from sklearn.base import clone as _clone
 estimators_list = []
 for name in ML_MODEL_NAMES:
     est = best_estimators[name]
-    # We must pass the RAW 1D estimator into the stacker since MultiOutputRegressor
-    # will feed them 1D targets iteratively.
+    # Bug 3 Fix: Use clone() so StackingRegressor receives UNFITTED estimators.
+    # clone() also ensures RF (native multi-output) is passed as a clean
+    # single-output-compatible model since the stacker wraps in MultiOutputRegressor.
     if hasattr(est, 'estimator'):
-        estimators_list.append((name, est.estimator))
+        estimators_list.append((name, _clone(est.estimator)))
     else:
-        # If it's a native 2D model like RF, we still append it directly.
-        # It handles 1D transparently.
-        estimators_list.append((name, est))
+        estimators_list.append((name, _clone(est)))
 
 stacking_model = MultiOutputRegressor(StackingRegressor(
     estimators=estimators_list,
@@ -758,7 +799,10 @@ stacking_model = MultiOutputRegressor(StackingRegressor(
     n_jobs=1
 ), n_jobs=1)
 
-stacking_model.fit(X_train, y_train)
+try:
+    stacking_model.fit(X_train, y_train, sample_weight=sample_weight_train)
+except TypeError:
+    stacking_model.fit(X_train, y_train)
 best_estimators['Stacking Ensemble'] = stacking_model
 
 # ── Save the global model for predict.py UI zero-input forecasting ──
@@ -805,6 +849,24 @@ for name in EVAL_MODELS:
 
 all_val_results['Global']  = pd.DataFrame(val_list)
 all_test_results['Global'] = pd.DataFrame(test_list)
+
+# --- Bug 4: Empirical CI calibration from stacking ensemble test residuals ---
+# Derives actual 2.5/97.5 percentile residuals per horizon from holdout data,
+# replacing the hand-tuned z_scaled magic number in predict.py.
+_stacking_test_pct = best_estimators['Stacking Ensemble'].predict(X_test)
+_residuals_pct     = y_test - _stacking_test_pct    # (N_test, 30)
+ci_lower_q = np.nanpercentile(_residuals_pct, 2.5,  axis=0)
+ci_upper_q = np.nanpercentile(_residuals_pct, 97.5, axis=0)
+print(f"\n  CI Calibration (empirical 95%):")
+print(f"    Day  1: [{ci_lower_q[0]*100:+.2f}%, {ci_upper_q[0]*100:+.2f}%]")
+print(f"    Day 15: [{ci_lower_q[14]*100:+.2f}%, {ci_upper_q[14]*100:+.2f}%]")
+print(f"    Day 30: [{ci_lower_q[29]*100:+.2f}%, {ci_upper_q[29]*100:+.2f}%]")
+_pkl_path = 'ml_pipeline/models/saved_models/global_veg_stacking_30d.pkl'
+_payload  = joblib.load(_pkl_path)
+_payload['ci_lower_q'] = ci_lower_q
+_payload['ci_upper_q'] = ci_upper_q
+joblib.dump(_payload, _pkl_path)
+print("  -> Calibrated CI bounds saved to model pkl")
 
 # ─────────────────────────────────────────────
 # 5. FINAL SUMMARY

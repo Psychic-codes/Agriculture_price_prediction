@@ -480,6 +480,55 @@ final_df = final_df.groupby("commodity", group_keys=False).apply(
 )
 
 # ─────────────────────────────────────────────────────────────
+# SECTION 11b — PRICE REGIME INDICATORS
+# Vegetable prices undergo dramatic regime shifts (e.g., onion Rs.15
+# crushing to Rs.100+). A bimodal regime indicator anchored to the
+# 365-day rolling median helps the model re-calibrate its price-level
+# expectation after a regime flip, mirroring the Cereal pipeline.
+# regime_transition marks the ±21 day window around a flip.
+# All operations on lag-1 price to avoid same-day look-ahead.
+# ─────────────────────────────────────────────────────────────
+print(" Engineering price regime features")
+for c_name, grp in final_df.groupby('commodity'):
+    idx  = grp.index
+    lag1 = grp['modal_price'].shift(1)
+    long_median = lag1.rolling(365, min_periods=60).median()
+    regime      = (lag1 > long_median).fillna(0).astype(int)
+    final_df.loc[idx, 'price_regime'] = regime
+    # Regime transition: 1 within a 42-day window centred on a flip
+    regime_flip = regime.diff().abs().fillna(0)
+    final_df.loc[idx, 'regime_transition'] = (
+        regime_flip.rolling(42, min_periods=1).max().shift(1).fillna(0)
+    )
+
+# ─────────────────────────────────────────────────────────────
+# SECTION 11c — CROP CALENDAR / HARVEST WINDOW FLAGS + YoY RATIO
+# Vegetable prices crash at harvest (supply glut) and spike at
+# lean season. An explicit binary flag prevents the model from
+# treating harvest-driven crashes as unexplained noise.
+# ─────────────────────────────────────────────────────────────
+print(" Engineering crop calendar & year-over-year features")
+HARVEST_WINDOWS = {
+    'onion':       [11, 12, 1, 2],    # Rabi onion harvest: Nov-Feb
+    'tomato':      [1, 2, 10, 11],    # Winter + Kharif harvests
+    'potato':      [2, 3, 4],         # Rabi harvest: Feb-Apr
+    'brinjal':     [10, 11, 12],      # Post-Kharif flush
+    'cabbage':     [11, 12, 1],       # Winter harvest
+    'cauliflower': [11, 12, 1, 2],    # Winter harvest
+}
+final_df['is_harvest_window'] = final_df.apply(
+    lambda r: 1 if r['Month_Num'] in HARVEST_WINDOWS.get(r['commodity'], []) else 0,
+    axis=1
+)
+
+# Year-over-year price ratio — leakage-free
+# Uses price_lag_3 (current lagged price) vs the same commodity 1 year ago.
+final_df['price_lag_365'] = final_df.groupby('commodity')['modal_price'].shift(365)
+final_df['yoy_price_ratio'] = (
+    final_df['price_lag_3'] / (final_df['price_lag_365'] + 1e-6)
+)
+
+# ─────────────────────────────────────────────────────────────
 # SECTION 12 — NaN FILLING FOR LAG & ROLLING FEATURES
 # Drop warmup rows up to price_lag_14 (longest hard lag for
 # vegetables). Backfill then median-fill remaining NaNs per
@@ -496,7 +545,8 @@ lag_cols = [
     "arrivals_lag_7", "arrivals_pct_change_7",
     "arrival_lag_3", "arrival_rolling_7", "arrival_rolling_14", "arrival_rolling_30",
     "arrival_shock", "supply_stress_index", "supply_shock_7v30",
-    "supply_tightness", "price_relative_strength"
+    "supply_tightness", "price_relative_strength",
+    "yoy_price_ratio",    # NaN for first ~365 days; bfill handles it
 ]
 lag_cols = [c for c in lag_cols if c in final_df.columns]
 

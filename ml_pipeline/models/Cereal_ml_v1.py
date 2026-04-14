@@ -62,6 +62,7 @@ print(f"  Commod. : {df['commodity'].unique().tolist()}")
 
 
 NUMERIC_FEATURES_WANTED = [
+       'price_lag_1',              # strongest single predictor (added)
        'msp', 'temp_7d_avg',
        'rainfall_30d', 'temp_deviation_14d', 'Diesel_price', 'diesel_lag_7',
        'diesel_lag_30', 'diesel_pct_change_30', 'fuel_cost_pressure',
@@ -76,6 +77,8 @@ NUMERIC_FEATURES_WANTED = [
        'supply_demand_pressure', 'price_relative_strength',
        'price_regime',            # bimodal regime indicator (0=low era, 1=high era)
        'regime_transition',       # 1 within ±21 days of a regime flip (diagnostic signal)
+       'is_harvest_window',       # 1 during crop-specific harvest months (added)
+       'yoy_price_ratio',         # current price vs same period last year (added)
 ]
 
 NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
@@ -111,6 +114,17 @@ for c_name, grp in df.groupby('commodity'):
     # 2nd-order momentum: (lag1 - lag8) - (lag8 - lag15)   -> acceleration
     lag15 = price.shift(15)
     df.loc[idx, 'price_accel_7'] = (lag1 - lag8) - (lag8 - lag15)
+
+    # ── IMP: Bimodal price regime indicator ──────────────────────────────────
+    # Ensures this feature is always present even when the source CSV pre-dates
+    # the new feature engineering run. Uses lag-1 price only (no look-ahead).
+    long_median = lag1.rolling(365, min_periods=60).median()
+    regime      = (lag1 > long_median).fillna(0).astype(int)
+    df.loc[idx, 'price_regime']      = regime
+    regime_flip = regime.diff().abs().fillna(0)
+    df.loc[idx, 'regime_transition'] = (
+        regime_flip.rolling(42, min_periods=1).max().shift(1).fillna(0)
+    )
 
 # Refresh after engineering
 NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
@@ -701,12 +715,27 @@ y_actual_test  = y_actual_global[t2:]
 
 print(f"  Rows -> Train: {len(X_train)}  Val: {len(X_val)}  Test: {len(X_test)}")
 
-tscv = TimeSeriesSplit(n_splits=5, gap=7)
+tscv = TimeSeriesSplit(n_splits=5, gap=30)  # gap=30 matches real 30-day deployment horizon
 best_estimators = {}
+
+# ── Recency-weighted sample weights (Imp 5) ────────────────────────────────
+# Exponential decay: rows from 3 years ago get ~5x less weight than
+# the most recent training row. This anchors learning to current price
+# regimes while retaining the full history for seasonality signals.
+_train_dates   = df_global.iloc[:t1]['date'].values
+_max_date      = DATE_TRAIN_END
+_days_ago      = np.array([
+    (_max_date - pd.Timestamp(str(d))).days for d in _train_dates
+], dtype=float)
+sample_weight_train = np.exp(-0.001 * _days_ago)   # half-life ~693 days
+sample_weight_train = sample_weight_train / sample_weight_train.mean()  # normalise
+print(f"  Recency weights : min={sample_weight_train.min():.3f}  max={sample_weight_train.max():.3f}  "
+      f"recent/oldest ratio={sample_weight_train.max()/sample_weight_train.min():.1f}x")
 
 for name in ML_MODEL_NAMES:
     print(f"    Tuning {name:<30}", end=" ... ", flush=True)
-    best_est, bp, cv_mae = tune_model(name, X_train, y_train, tscv)
+    best_est, bp, cv_mae = tune_model(name, X_train, y_train, tscv,
+                                      sample_weight=sample_weight_train)
     best_estimators[name] = best_est
     print(f"CV pseudo-MAE={cv_mae:.4f}  {bp}")
 
@@ -716,17 +745,19 @@ from sklearn.multioutput import MultiOutputRegressor
 
 
 
+from sklearn.base import clone as _clone
 estimators_list = []
 for name in ML_MODEL_NAMES:
     est = best_estimators[name]
-    # We must pass the RAW 1D estimator into the stacker since MultiOutputRegressor
-    # will feed them 1D targets iteratively.
+    # StackingRegressor expects UNFITTED estimators; clone() guarantees a
+    # fresh, unfitted copy regardless of whether the base model has been fit.
+    # For MultiOutputRegressor-wrapped models, extract the inner 1D estimator;
+    # for native multi-output models (RF), clone the whole model — StackingRegressor
+    # feeds 1D targets so RF handles them correctly as a single-output tree.
     if hasattr(est, 'estimator'):
-        estimators_list.append((name, est.estimator))
+        estimators_list.append((name, _clone(est.estimator)))
     else:
-        # If it's a native 2D model like RF, we still append it directly.
-        # It handles 1D transparently.
-        estimators_list.append((name, est))
+        estimators_list.append((name, _clone(est)))
 
 stacking_model = MultiOutputRegressor(StackingRegressor(
     estimators=estimators_list,
@@ -735,7 +766,11 @@ stacking_model = MultiOutputRegressor(StackingRegressor(
     n_jobs=1
 ), n_jobs=1)
 
-stacking_model.fit(X_train, y_train)
+try:
+    stacking_model.fit(X_train, y_train, sample_weight=sample_weight_train)
+except TypeError:
+    # Fallback if StackingRegressor version doesn't support sample_weight
+    stacking_model.fit(X_train, y_train)
 best_estimators['Stacking Ensemble'] = stacking_model
 
 # ── Save the global model for predict.py UI zero-input forecasting ──
@@ -782,6 +817,27 @@ for name in EVAL_MODELS:
 
 all_val_results['Global']  = pd.DataFrame(val_list)
 all_test_results['Global'] = pd.DataFrame(test_list)
+
+# ── Bug 4: Empirical CI calibration from stacking ensemble test residuals ──
+# Compute actual residuals in pct-change space and derive the 2.5/97.5
+# percentile offsets per forecast horizon. These replace the hand-tuned
+# z_scaled magic number in predict.py with data-driven bounds.
+_stacking_test_pct = best_estimators['Stacking Ensemble'].predict(X_test)
+_residuals_pct     = y_test - _stacking_test_pct    # shape (N_test, 30)
+ci_lower_q = np.nanpercentile(_residuals_pct, 2.5,  axis=0)  # (30,)
+ci_upper_q = np.nanpercentile(_residuals_pct, 97.5, axis=0)  # (30,)
+print(f"\n  CI Calibration (empirical 95%):")
+print(f"    Day  1: [{ci_lower_q[0]*100:+.2f}%, {ci_upper_q[0]*100:+.2f}%]")
+print(f"    Day 15: [{ci_lower_q[14]*100:+.2f}%, {ci_upper_q[14]*100:+.2f}%]")
+print(f"    Day 30: [{ci_lower_q[29]*100:+.2f}%, {ci_upper_q[29]*100:+.2f}%]")
+
+# Append CI bounds to the saved model payload
+_pkl_path = 'ml_pipeline/models/saved_models/global_stacking_30d.pkl'
+_payload  = joblib.load(_pkl_path)
+_payload['ci_lower_q'] = ci_lower_q
+_payload['ci_upper_q'] = ci_upper_q
+joblib.dump(_payload, _pkl_path)
+print("  -> Calibrated CI bounds saved to model pkl")
 
 # ─────────────────────────────────────────────
 # 5. FINAL SUMMARY
