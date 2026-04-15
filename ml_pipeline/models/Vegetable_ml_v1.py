@@ -62,39 +62,47 @@ print(f"  Commod. : {df['commodity'].unique().tolist()}")
 
 
 NUMERIC_FEATURES_WANTED = [
-    # Price lags (all shifted >=1 day — no leakage; Bug 2 fix: removed modal_price/min_price/max_price)
-    'price_lag_1', 'price_lag_2', 'price_lag_3', 'price_lag_7', 'price_lag_14',
-    # Rolling price stats
-    'price_rolling_mean_7', 'price_rolling_mean_14', 'price_rolling_mean_30',
-    'price_volatility_7', 'price_volatility_14', 'price_volatility_30',
-    'price_vs_30d_mean',
-    # Price momentum
-    'price_momentum_3', 'price_momentum_7', 'price_momentum_index',
-    'price_pct_change_3', 'price_pct_change_7', 'price_pct_change_14',
-    'price_relative_strength',
-    # Supply/demand
-    'supply_tightness', 'supply_demand_pressure',
-    # Arrival features
-    'arrival_lag_3', 'arrivals_lag_7',
-    'arrival_rolling_7', 'arrival_rolling_14', 'arrival_rolling_30',
-    'arrival_shock', 'supply_stress_index', 'supply_shock_7v30',
-    # Weather (short-cycle — vegetables react to 3-day shocks)
-    'temp_7d_avg', 'temp_deviation_14d', 'temp_shock_3d',
-    'rainfall_7d', 'rainfall_3d_sum', 'rainfall_shock_3d',
-    # Fuel economics
-    'Diesel_price', 'diesel_lag_7', 'diesel_lag_30',
-    'diesel_pct_change_30', 'fuel_cost_pressure',
-    # Time features
-    'Month_Num', 'DayOfYear', 'seasonal_price_index',
-    # Technical indicators
-    'price_ema_7', 'price_ema_14', 'macd', 'macd_signal', 'rsi_14',
-    # Regime features (computed in feature engineering + groupby loop below)
-    'price_regime', 'regime_transition',
-    # New features from Section 11c feature engineering
-    'is_harvest_window', 'yoy_price_ratio',
-    # Regime-robust inline features (computed in groupby loop below)
-    'price_diff_7', 'month_sin', 'month_cos',
-    'price_zscore_365', 'price_norm_trailing', 'price_accel_7',
+    # ── Price signal (lagged — no leakage) ──────────────────────────────────
+    'price_lag_1',             # lag-1 price: strongest short-term predictor
+    'price_lag_3',             # 3d lag: used in supply_tightness & yoy_ratio
+    'price_rolling_mean_7',    # short-term MA (drop 14d — interpolation of 7+30)
+    'price_rolling_mean_30',   # trend baseline
+    'price_volatility_14',     # single volatility measure (14d balances 7 vs 30)
+    'price_pct_change_7',      # core 7d momentum (drop 3d and 14d — redundant)
+    'price_accel_7',           # 2nd-order momentum: unique signal, not redundant
+    'price_relative_strength', # 60d range position: where in the cycle are we
+    'price_zscore_365',        # regime-normalised level (handles onion blowouts)
+    'price_norm_trailing',     # level-shift-robust normalisation
+    'yoy_price_ratio',         # lag-3 price vs same period last year
+    # ── Supply / arrivals ────────────────────────────────────────────────────
+    # Vegetables: 3-day supply shock matters more than 7-day rolling
+    'arrival_lag_3',           # most-recent supply signal (3d lag)
+    'arrival_rolling_30',      # long-term supply baseline
+    'arrival_shock',           # (lag3 - rolling7) / rolling7: acute supply shock
+    'supply_stress_index',     # (rolling14 - lag3) / rolling14
+    'supply_shock_7v30',       # short vs long supply level deviation
+    'supply_tightness',        # price_pct / (arrivals/arrival_rolling7) composite
+    # ── Weather (short-cycle: vegetables react within 3-7 days) ─────────────
+    'temp_7d_avg',             # growing condition signal
+    'temp_shock_3d',           # sudden temperature drop/surge (unique to veg)
+    'rainfall_7d',             # 7d rainfall accumulation
+    'rainfall_3d_sum',         # very-recent moisture (critical for leafy veg)
+    # ── Fuel / transport ─────────────────────────────────────────────────────
+    'Diesel_price',            # transport cost level (monthly, drop lags ≈ same)
+    'diesel_pct_change_30',    # rate-of-change signal (unique vs level)
+    'fuel_cost_pressure',      # normalised fuel cost ratio
+    # ── Seasonality / calendar ───────────────────────────────────────────────
+    'month_sin',               # smooth cyclical month (drop Month_Num + DayOfYear)
+    'month_cos',
+    'seasonal_price_index',    # historical seasonal norm
+    'is_harvest_window',       # binary crop-specific harvest calendar flag
+    # ── Technical indicators ─────────────────────────────────────────────────
+    'rsi_14',                  # bounded [0,100] oscillator — unique signal
+    # (drop price_ema_7/14: r>0.98 with rolling_mean_7/14 after shift)
+    # (drop macd/macd_signal: captured by price_pct_change_7 + price_diff_7)
+    # ── Market regime ─────────────────────────────────────────────────────────
+    'price_regime',            # bimodal level: 0=low era, 1=high era
+    'regime_transition',       # 1 within ~21 days of a regime flip
 ]
 
 NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
