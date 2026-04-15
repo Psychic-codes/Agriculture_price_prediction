@@ -152,34 +152,34 @@ weather_daily = (
 )
 
 # --- Short-cycle windows (added from Vegetable pipeline) ---
-weather_daily["rainfall_3d_sum"]   = weather_daily["rainfall"].rolling(3).sum()
-weather_daily["temp_3d_avg"]       = weather_daily["temperature"].rolling(3).mean()
+weather_daily["rainfall_3d_sum"]   = weather_daily["rainfall"].shift(1).rolling(3).sum()
+weather_daily["temp_3d_avg"]       = weather_daily["temperature"].shift(1).rolling(3).mean()
 weather_daily["rainfall_shock_3d"] = (
-    (weather_daily["rainfall"] - weather_daily["rainfall"].rolling(3).mean()) /
-    (weather_daily["rainfall"].rolling(3).mean() + 1e-6)
+    (weather_daily["rainfall"].shift(1) - weather_daily["rainfall"].shift(1).rolling(3).mean()) /
+    (weather_daily["rainfall"].shift(1).rolling(3).mean() + 1e-6)
 )
 weather_daily["temp_shock_3d"] = (
-    (weather_daily["temperature"] - weather_daily["temperature"].rolling(3).mean()) /
-    (weather_daily["temperature"].rolling(3).mean() + 1e-6)
+    (weather_daily["temperature"].shift(1) - weather_daily["temperature"].shift(1).rolling(3).mean()) /
+    (weather_daily["temperature"].shift(1).rolling(3).mean() + 1e-6)
 )
 
 # --- Medium and long windows (cereal-specific) ---
-weather_daily["rainfall_7d"]        = weather_daily["rainfall"].rolling(7).sum()
-weather_daily["rainfall_15d"]       = weather_daily["rainfall"].rolling(15).sum()
-weather_daily["rainfall_30d"]       = weather_daily["rainfall"].rolling(30).sum()
-weather_daily["rainfall_60d"]       = weather_daily["rainfall"].rolling(60).sum()
-weather_daily["temp_7d_avg"]        = weather_daily["temperature"].rolling(7).mean()
-weather_daily["temp_14d_avg"]       = weather_daily["temperature"].rolling(14).mean()
+weather_daily["rainfall_7d"]        = weather_daily["rainfall"].shift(1).rolling(7).sum()
+weather_daily["rainfall_15d"]       = weather_daily["rainfall"].shift(1).rolling(15).sum()
+weather_daily["rainfall_30d"]       = weather_daily["rainfall"].shift(1).rolling(30).sum()
+weather_daily["rainfall_60d"]       = weather_daily["rainfall"].shift(1).rolling(60).sum()
+weather_daily["temp_7d_avg"]        = weather_daily["temperature"].shift(1).rolling(7).mean()
+weather_daily["temp_14d_avg"]       = weather_daily["temperature"].shift(1).rolling(14).mean()
 weather_daily["temp_deviation_14d"] = (
-    weather_daily["temperature"] - weather_daily["temp_14d_avg"]
+    weather_daily["temperature"].shift(1) - weather_daily["temp_14d_avg"]
 )
 weather_daily["rainfall_shock_7d"] = (
-    (weather_daily["rainfall"] - weather_daily["rainfall"].rolling(7).mean()) /
-    (weather_daily["rainfall"].rolling(7).mean() + 1e-6)
+    (weather_daily["rainfall"].shift(1) - weather_daily["rainfall"].shift(1).rolling(7).mean()) /
+    (weather_daily["rainfall"].shift(1).rolling(7).mean() + 1e-6)
 )
 weather_daily["rainfall_shock_30d"] = (
-    (weather_daily["rainfall"] - weather_daily["rainfall"].rolling(30).mean()) /
-    (weather_daily["rainfall"].rolling(30).mean() + 1e-6)
+    (weather_daily["rainfall"].shift(1) - weather_daily["rainfall"].shift(1).rolling(30).mean()) /
+    (weather_daily["rainfall"].shift(1).rolling(30).mean() + 1e-6)
 )
 
 final_df = final_df.merge(weather_daily, on="date", how="left")
@@ -261,7 +261,7 @@ final_df["fuel_cost_pressure"] = (
 mask = final_df["modal_price"].isna() & (final_df["arrivals"] > 0)
 final_df.loc[mask, "modal_price"] = (
     final_df.groupby("commodity")["modal_price"]
-    .transform(lambda x: x.interpolate())
+    .transform(lambda x: x.ffill())
 )
 final_df["market_closed_flag"] = (
     final_df["modal_price"].isna() &
@@ -435,7 +435,7 @@ final_df["price_pct_change_30"] = (
 
 final_df["supply_tightness"] = (
     final_df["price_pct_change_7"] /
-    (final_df["arrivals"] / (final_df["arrival_rolling_7"] + 1e-6) + 1e-6)
+    (final_df["arrival_lag_3"] / (final_df["arrival_rolling_7"] + 1e-6) + 1e-6)
 )
 final_df["market_shock"] = (
     (final_df["price_lag_3"] - final_df["price_rolling_mean_30"]) /

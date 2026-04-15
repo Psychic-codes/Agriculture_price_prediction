@@ -62,10 +62,11 @@ print(f"  Commod. : {df['commodity'].unique().tolist()}")
 
 
 NUMERIC_FEATURES_WANTED = [
-    # ── Price signal (lagged — no leakage) ──────────────────────────────────
+    # -- Price signal (lagged -- no leakage) ----------------------------------
     'price_lag_1',             # lag-1 price: strongest short-term predictor
     'price_lag_3',             # 3d lag: used in supply_tightness & yoy_ratio
-    'price_rolling_mean_7',    # short-term MA (drop 14d — interpolation of 7+30)
+    'price_lag_14',            # 14d lag: medium-term anchor for 30d horizon (Fix #5)
+    'price_rolling_mean_7',    # short-term MA (drop 14d -- interpolation of 7+30)
     'price_rolling_mean_30',   # trend baseline
     'price_volatility_14',     # single volatility measure (14d balances 7 vs 30)
     'price_pct_change_7',      # core 7d momentum (drop 3d and 14d — redundant)
@@ -88,7 +89,6 @@ NUMERIC_FEATURES_WANTED = [
     'rainfall_7d',             # 7d rainfall accumulation
     'rainfall_3d_sum',         # very-recent moisture (critical for leafy veg)
     # ── Fuel / transport ─────────────────────────────────────────────────────
-    'Diesel_price',            # transport cost level (monthly, drop lags ≈ same)
     'diesel_pct_change_30',    # rate-of-change signal (unique vs level)
     'fuel_cost_pressure',      # normalised fuel cost ratio
     # ── Seasonality / calendar ───────────────────────────────────────────────
@@ -419,7 +419,7 @@ def evaluate(y_true_actual_matrix, y_pred_pct_matrix, price_base, name, split_la
                 c_rmse = np.sqrt(mean_squared_error(y_true_c, y_pred_c))
                 c_mape = np.mean(np.abs((y_true_c - y_pred_c) / (y_true_c + 1e-6))) * 100
                 detail_msg.append(
-                    f"    ↳ {c_name:<15}: MAE=Rs. {c_mae:7.2f} | RMSE=Rs. {c_rmse:7.2f} | MAPE={c_mape:4.2f}%"
+                    f"    -> {c_name:<15}: MAE=Rs. {c_mae:7.2f} | RMSE=Rs. {c_rmse:7.2f} | MAPE={c_mape:4.2f}%"
                 )
 
     # Print all lines vertically
@@ -501,7 +501,7 @@ def tune_model(name, X_train, y_train, tscv, sample_weight=None, lag1_idx=None):
     estimator, param_distributions=param_grid,
     n_iter=20, cv=tscv, scoring=scorer,
     n_jobs=1, random_state=42,
-    refit=False,           # ← disable auto-refit
+    refit=False,           # <- disable auto-refit
     error_score=np.nan
 )
     search.fit(X_train, y_train, **fit_params)
@@ -816,7 +816,12 @@ stacking_model = MultiOutputRegressor(StackingRegressor(
 
 try:
     stacking_model.fit(X_train, y_train, sample_weight=sample_weight_train)
-except TypeError:
+except (TypeError, ValueError):
+    # sklearn's MultiOutputRegressor raises ValueError (not TypeError) when
+    # an underlying estimator doesn't support sample_weight propagation.
+    # Fallback: fit without weights — base estimators were already tuned
+    # with recency weights via tune_model(), so information is not lost.
+    print("    [INFO] Stacking meta-learner: sample_weight not supported, fitting without weights")
     stacking_model.fit(X_train, y_train)
 best_estimators['Stacking Ensemble'] = stacking_model
 

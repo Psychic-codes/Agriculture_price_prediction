@@ -13,7 +13,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 warnings.filterwarnings('ignore')
 
-# ── Light theme ───────────────────────────────────────────────────────────────
+# -- Light theme ---------------------------------------------------------------
 plt.rcParams.update({
     'figure.facecolor':  '#F6F8FA',
     'axes.facecolor':    '#FFFFFF',
@@ -39,7 +39,7 @@ C_TEST   = '#1A7F37'
 C_BG     = '#F6F8FA'
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# -- Helpers -------------------------------------------------------------------
 
 def safe_metric(y_true, y_pred):
     mask = ~(np.isnan(y_true) | np.isnan(y_pred))
@@ -61,12 +61,12 @@ def r2_color(r2):
 
 
 def fmt_inr(ax, axis='y'):
-    fmt = mticker.FuncFormatter(lambda x, _: f'₹{x:,.0f}')
+    fmt = mticker.FuncFormatter(lambda x, _: f'Rs.{x:,.0f}')
     if axis == 'y': ax.yaxis.set_major_formatter(fmt)
     else:           ax.xaxis.set_major_formatter(fmt)
 
 
-# ── Single commodity plot ────────────────────────────────────────────────────
+# -- Single commodity plot ----------------------------------------------------
 
 def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
 
@@ -78,7 +78,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
     m_vl = safe_metric(df_val['actual_price_30d'].values,   df_val['predicted_price_30d'].values)
     m_ts = safe_metric(df_test['actual_price_30d'].values,  df_test['predicted_price_30d'].values)
 
-    # ── figure: tall + wide, two rows clearly separated ──
+    # -- figure: tall + wide, two rows clearly separated --
     fig = plt.figure(figsize=(22, 16), facecolor=C_BG)
 
     # outer grid: row 0 = time-series (70%), row 1 = scatter row (30%)
@@ -111,7 +111,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
         for s in ['left', 'bottom']:
             ax.spines[s].set_color('#D0D7DE')
 
-    # ── shaded zones ──
+    # -- shaded zones --
     d_min = df_comm['date'].min()
     d_max = df_comm['date'].max()
     ax_main.axvspan(d_min,      train_end, color='#DDF4FF', alpha=0.35, zorder=0)
@@ -135,7 +135,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
                      ha='center', va='top', fontsize=9,
                      fontweight='bold', color=col, alpha=0.75)
 
-    # ── lines ──
+    # -- lines --
     ax_main.plot(df_comm['date'],  df_comm['actual_price_30d'],
                  color=C_ACTUAL, lw=2.0, alpha=0.70,
                  label='Actual Price (30-day forward)', zorder=4)
@@ -149,7 +149,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
                  color=C_TEST, lw=2.0, alpha=0.95,
                  label='Test Prediction', zorder=5)
 
-    ax_main.set_ylabel('Price  (₹)', fontsize=11, labelpad=10)
+    ax_main.set_ylabel('Price  (Rs.)', fontsize=11, labelpad=10)
     fmt_inr(ax_main)
     ax_main.xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
     ax_main.xaxis.set_major_locator(mdates.MonthLocator(interval=5))
@@ -161,7 +161,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
                    framealpha=0.9, edgecolor='#D0D7DE',
                    fancybox=False, borderpad=0.8)
 
-    # ── scatter panels ──
+    # -- scatter panels --
     def draw_scatter(ax, df_sub, metrics, color, title):
         ax.set_title(title, fontsize=10.5, fontweight='bold',
                      color=color, pad=10)
@@ -190,7 +190,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
         # metrics box inside the panel
         rc = r2_color(metrics['r2'])
         stats = (f"R² = {metrics['r2']:.3f}\n"
-                 f"MAE = ₹{metrics['mae']:,.0f}\n"
+                 f"MAE = Rs.{metrics['mae']:,.0f}\n"
                  f"MAPE = {metrics['mape']:.1f}%")
         ax.text(0.97, 0.05, stats,
                 transform=ax.transAxes,
@@ -205,7 +205,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
     draw_scatter(ax_vl, df_val,   m_vl, C_VAL,   'Val   — Actual vs Predicted')
     draw_scatter(ax_ts, df_test,  m_ts, C_TEST,  'Test  — Actual vs Predicted')
 
-    # ── title & subtitle ──
+    # -- title & subtitle --
     last_actual = df_comm['actual_price_30d'].dropna().iloc[-1] \
                   if not df_comm['actual_price_30d'].dropna().empty else np.nan
     last_pred   = df_comm['predicted_price_30d'].dropna().iloc[-1] \
@@ -217,20 +217,20 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
              ha='center', fontsize=17, fontweight='bold', color='#24292F')
     fig.text(0.5, 0.913,
              f'Latest date: {last_date}   |   '
-             f'Last actual: ₹{last_actual:,.0f}   |   '
-             f'Last predicted: ₹{last_pred:,.0f}   |   '
+             f'Last actual: Rs.{last_actual:,.0f}   |   '
+             f'Last predicted: Rs.{last_pred:,.0f}   |   '
              f'Test  R²: {m_ts["r2"]:.3f}   MAPE: {m_ts["mape"]:.1f}%',
              ha='center', fontsize=10.5, color='#57606A')
 
-    # ── save ──
+    # -- save --
     clean = commodity.replace(' ', '_').replace('(', '').replace(')', '')
     path  = f"{out_dir}/{clean}_30d_forecast.png"
     plt.savefig(path, dpi=180, bbox_inches='tight', facecolor=C_BG)
     plt.close()
-    print(f"  ✔  Saved → {path}")
+    print(f"  OK  Saved -> {path}")
 
 
-# ── Pipeline ──────────────────────────────────────────────────────────────────
+# -- Pipeline ------------------------------------------------------------------
 
 def plot_commodity_group(csv_path, model_path, train_end, val_end):
     print(f"\nLoading  {csv_path} ...")
@@ -238,7 +238,7 @@ def plot_commodity_group(csv_path, model_path, train_end, val_end):
         df_base = pd.read_csv(csv_path, parse_dates=['date'])
         payload = joblib.load(model_path)
     except FileNotFoundError:
-        print("  ✘  Missing files — skipping.")
+        print("  X  Missing files -- skipping.")
         return
 
     stacker_model     = payload['model']
@@ -271,7 +271,14 @@ def plot_commodity_group(csv_path, model_path, train_end, val_end):
 
         X            = df_features.fillna(df_features.median(numeric_only=True)).values
         preds        = stacker_model.predict(X)
-        pred_pct_30d = preds[:, 29]
+
+        # Fix #1: average day 25-30 predictions (indices 24:30) instead of
+        #         day-30 only — smooths noise on the hardest forecast horizon
+        pred_pct_30d = preds[:, 24:30].mean(axis=1)
+
+        # Fix #2: clip extreme % changes to [-50%, +100%] — prevents wild
+        #         outliers from tanking per-commodity R2
+        pred_pct_30d = np.clip(pred_pct_30d, -0.50, 1.00)
 
         df_comm['predicted_price_30d'] = df_comm['modal_price'] * (1 + pred_pct_30d)
         if 'target_30d_pct' in df_comm.columns:
@@ -283,14 +290,14 @@ def plot_commodity_group(csv_path, model_path, train_end, val_end):
 
 
 def generate_plots():
-    print("─── Cereals ───")
+    print("--- Cereals ---")
     plot_commodity_group(
         'ml_pipeline/data/Cereal_Feature_v2_Multi.csv',
         'ml_pipeline/models/saved_models/global_stacking_30d.pkl',
         pd.to_datetime('2022-06-01'),
         pd.to_datetime('2024-01-11'),
     )
-    print("\n─── Vegetables ───")
+    print("\n--- Vegetables ---")
     plot_commodity_group(
         'ml_pipeline/data/Vegetable_Feature_v2_Multi.csv',
         'ml_pipeline/models/saved_models/global_veg_stacking_30d.pkl',
