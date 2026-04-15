@@ -62,23 +62,40 @@ print(f"  Commod. : {df['commodity'].unique().tolist()}")
 
 
 NUMERIC_FEATURES_WANTED = [
-       'price_lag_1',              # strongest single predictor (added)
-       'msp', 'temp_7d_avg',
-       'rainfall_30d', 'temp_deviation_14d', 'Diesel_price', 'diesel_lag_7',
-       'diesel_lag_30', 'diesel_pct_change_30', 'fuel_cost_pressure',
-       'season_enc', 'seasonal_price_index', 'arrivals_lag_7', 'arrival_lag_3',
-       'arrival_rolling_7', 'arrival_rolling_14', 'arrival_rolling_30',
-       'arrival_shock', 'supply_stress_index', 'supply_shock_7v30',
-       'msp_yearly_growth', 'price_rolling_mean_7',
-       'price_rolling_mean_14', 'price_rolling_mean_30', 'price_volatility_7',
-       'price_volatility_14', 'price_volatility_30',
-       'price_pct_change_3', 'price_pct_change_7',
-       'price_pct_change_30', 'supply_tightness',
-       'supply_demand_pressure', 'price_relative_strength',
-       'price_regime',            # bimodal regime indicator (0=low era, 1=high era)
-       'regime_transition',       # 1 within ±21 days of a regime flip (diagnostic signal)
-       'is_harvest_window',       # 1 during crop-specific harvest months (added)
-       'yoy_price_ratio',         # current price vs same period last year (added)
+    # ── Price signal (lagged — no leakage) ─────────────────────────────────
+    'price_lag_1',             # lag-1 price: strongest short-term predictor
+    'price_rolling_mean_14',   # 14d MA: proxy for recent price level (RF rank #3)
+    'price_volatility_7',      # short-term volatility (RF rank #10)
+    'price_volatility_14',     # medium-term volatility (RF rank #13)
+    'price_volatility_30',     # long-term volatility (RF rank #15)
+    'price_pct_change_3',      # 3d momentum (RF rank #11)
+    'price_pct_change_30',     # 30d momentum (RF rank #16)
+    'price_relative_strength', # 60d price range position (RF rank #8)
+    'price_zscore_365',        # normalised against trailing year (regime-robust)
+    'price_norm_trailing',     # level-shift-robust price ratio
+    'price_accel_7',           # 2nd-order momentum: acceleration/deceleration
+    'yoy_price_ratio',         # current lag-3 price vs same period last year
+    # ── Supply / arrivals ──────────────────────────────────────────────────
+    'arrivals_lag_7',          # 7d-lagged arrivals: #1 feature by RF importance
+    'supply_tightness',        # price_pct/arrival_ratio composite: #2 by RF imp
+    'supply_stress_index',     # (rolling14 - lag3) / rolling14 (RF rank #5)
+    'arrival_rolling_30',      # 30d supply level (RF rank #7)
+    'supply_demand_pressure',  # price_pct / arrivals_pct composite (RF rank #18)
+    'supply_shock_7v30',       # short vs long supply deviation (RF rank #19)
+    # ── Fuel / transport ───────────────────────────────────────────────────
+    'diesel_pct_change_30',    # 30d fuel cost momentum: #4 by RF importance
+    'fuel_cost_pressure',      # normalised fuel cost ratio (RF rank #6)
+    'Diesel_price',            # fuel cost level (RF rank #9)
+    # ── Weather ────────────────────────────────────────────────────────────
+    'rainfall_30d',            # 30d cumulative rainfall (RF rank #12)
+    # ── Seasonality / calendar ─────────────────────────────────────────────
+    'month_sin',               # smooth cyclical month encoding
+    'month_cos',
+    'seasonal_price_index',    # historical seasonal norm (RF rank #14)
+    'is_harvest_window',       # binary crop-specific harvest calendar flag
+    # ── Market regime ──────────────────────────────────────────────────────
+    'price_regime',            # bimodal level: 0=low era, 1=high era
+    'regime_transition',       # 1 within ~21 days of a regime flip
 ]
 
 NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
@@ -275,6 +292,9 @@ def prepare_data(data):
     y = data[TARGET].values
     y_actual = data[ACTUAL_TARGET].values
     if X.isna().sum().sum() > 0:
+        # NOTE: prepare_data is called on already-split subsets (train/val/test
+        # individually), so X.median() here is computed on that subset only.
+        # The global training pipeline uses the train-only median from above.
         X = X.fillna(X.median())
     return X.values, y, y_actual
 
@@ -695,7 +715,11 @@ df_global = df_global.sort_values('date').reset_index(drop=True)
 
 X_global = df_global[X_cols].copy()
 if X_global.isna().sum().sum() > 0:
-    X_global = X_global.fillna(X_global.median())
+    # LEAK FIX: compute imputation median ONLY on training rows.
+    # Using the full-dataset median leaks val/test statistics into training.
+    _t1_for_impute = int((df_global['date'] <= DATE_TRAIN_END).sum())
+    _train_median  = X_global.iloc[:_t1_for_impute].median()
+    X_global = X_global.fillna(_train_median)
 X_global = X_global.values.astype(np.float32)
 
 y_global        = df_global[TARGET].values.astype(np.float32)

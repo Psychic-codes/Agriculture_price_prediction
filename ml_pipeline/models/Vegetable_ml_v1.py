@@ -288,6 +288,9 @@ def prepare_data(data):
     y = data[TARGET].values
     y_actual = data[ACTUAL_TARGET].values
     if X.isna().sum().sum() > 0:
+        # NOTE: prepare_data is called on already-split subsets (train/val/test
+        # individually), so X.median() here is computed on that subset only.
+        # The global training pipeline uses the train-only median from above.
         X = X.fillna(X.median())
     return X.values, y, y_actual
 
@@ -722,7 +725,11 @@ if non_numeric:
     X_cols   = X_global.columns.tolist()   # keep X_cols in sync for later use
 
 if X_global.isna().sum().sum() > 0:
-    X_global = X_global.fillna(X_global.median())
+    # LEAK FIX: compute imputation median ONLY on training rows.
+    # Using the full-dataset median leaks val/test statistics into training.
+    _t1_for_impute = int((df_global['date'] <= DATE_TRAIN_END).sum())
+    _train_median  = X_global.iloc[:_t1_for_impute].median()
+    X_global = X_global.fillna(_train_median)
 X_global = X_global.values.astype(np.float32)
 
 # Remove 'Month', 'State' — string columns with no numeric value

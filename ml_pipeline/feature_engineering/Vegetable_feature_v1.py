@@ -521,9 +521,13 @@ final_df['is_harvest_window'] = final_df.apply(
     axis=1
 )
 
-# Year-over-year price ratio — leakage-free
-# Uses price_lag_3 (current lagged price) vs the same commodity 1 year ago.
+# Year-over-year price ratio:
+# LEAK FIX: pre-fill price_lag_365 NaN (first ~365 rows per commodity)
+# with price_lag_3 so that yoy_price_ratio = price_lag_3/price_lag_3 ≈ 1.0
+# (neutral 'no-change' prior). Prevents bfill from later propagating
+# day-365 data backward to warmup rows 15-364.
 final_df['price_lag_365'] = final_df.groupby('commodity')['modal_price'].shift(365)
+final_df['price_lag_365'] = final_df['price_lag_365'].fillna(final_df['price_lag_3'])
 final_df['yoy_price_ratio'] = (
     final_df['price_lag_3'] / (final_df['price_lag_365'] + 1e-6)
 )
@@ -546,7 +550,7 @@ lag_cols = [
     "arrival_lag_3", "arrival_rolling_7", "arrival_rolling_14", "arrival_rolling_30",
     "arrival_shock", "supply_stress_index", "supply_shock_7v30",
     "supply_tightness", "price_relative_strength",
-    "yoy_price_ratio",    # NaN for first ~365 days; bfill handles it
+    "yoy_price_ratio",    # warmup NaN pre-filled with neutral≈1.0 above (no bfill needed)
 ]
 lag_cols = [c for c in lag_cols if c in final_df.columns]
 
@@ -561,17 +565,16 @@ final_df    = final_df.dropna(subset=["price_lag_14"])
 rows_dropped = rows_before - len(final_df)
 print(f"  Warmup rows dropped       : {rows_dropped} ({rows_dropped/rows_before*100:.2f}%)")
 
-# Step 2: Backfill per commodity
+# Step 2: Forward-fill per commodity (ffill = safe — propagates last known
+# value forward, never backward; no future-to-past leakage)
 final_df[lag_cols] = (
     final_df.groupby("commodity")[lag_cols]
-    .transform(lambda x: x.bfill())
+    .transform(lambda x: x.ffill())
 )
 
-# Step 3: Median fill as last resort
-final_df[lag_cols] = (
-    final_df.groupby("commodity")[lag_cols]
-    .transform(lambda x: x.fillna(x.median()))
-)
+# Step 3: Fill any residual NaN at the very start of a commodity's history
+# with 0 (fixed constant — no group statistics, no leakage)
+final_df[lag_cols] = final_df[lag_cols].fillna(0.0)
 
 after_nan = final_df[lag_cols].isna().sum().sum()
 print(f"  Total NaNs after filling  : {after_nan}")

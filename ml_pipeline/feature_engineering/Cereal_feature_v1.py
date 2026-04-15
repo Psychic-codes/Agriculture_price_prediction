@@ -518,10 +518,14 @@ final_df['is_harvest_window'] = final_df.apply(
     axis=1
 )
 
-# Year-over-year price ratio — leakage-free
-# price_lag_3 (current lagged price) divided by 1-year-ago lagged price.
-# Captures whether the current period is abnormally expensive/cheap vs last year.
+# Year-over-year price ratio — leakage-free:
+# LEAK FIX: Instead of letting bfill later propagate row-365 data backward to
+# warmup rows (31-364), pre-fill price_lag_365 NaN with price_lag_3 so the
+# computed ratio = price_lag_3 / price_lag_3 ≈ 1.0 (neutral 'no change' prior).
+# This means warmup rows that lack a valid year-ago reference simply read as
+# "price is the same as a year ago" — wrong but not leaky.
 final_df['price_lag_365'] = final_df.groupby('commodity')['modal_price'].shift(365)
+final_df['price_lag_365'] = final_df['price_lag_365'].fillna(final_df['price_lag_3'])
 final_df['yoy_price_ratio'] = (
     final_df['price_lag_3'] / (final_df['price_lag_365'] + 1e-6)
 )
@@ -540,7 +544,7 @@ lag_cols = [
     "arrival_lag_3", "arrival_rolling_7", "arrival_rolling_14", "arrival_rolling_30",
     "arrival_shock", "supply_stress_index", "supply_shock_7v30",
     "supply_tightness", "price_relative_strength",
-    "yoy_price_ratio",    # NaN for first ~365 days per commodity; bfill handles it
+    "yoy_price_ratio",    # warmup NaN pre-filled with neutral=1.0 above (no bfill needed)
 ]
 lag_cols = [c for c in lag_cols if c in final_df.columns]
 
@@ -555,17 +559,17 @@ final_df     = final_df.dropna(subset=["price_lag_30"])
 rows_dropped = rows_before - len(final_df)
 print(f"  Warmup rows dropped       : {rows_dropped} ({rows_dropped/rows_before*100:.2f}%)")
 
-# Step 2: Backfill remaining NaNs per commodity
+# Step 2: Forward-fill remaining NaNs per commodity (ffill = safe; propagates
+# the last KNOWN value forward, never backward — no future-to-past leakage)
 final_df[lag_cols] = (
     final_df.groupby("commodity")[lag_cols]
-    .transform(lambda x: x.bfill())
+    .transform(lambda x: x.ffill())
 )
 
-# Step 3: Per-commodity median fill as last resort
-final_df[lag_cols] = (
-    final_df.groupby("commodity")[lag_cols]
-    .transform(lambda x: x.fillna(x.median()))
-)
+# Step 3: Fill any remaining NaN (e.g. very start of a commodity's history
+# where ffill has no prior value yet) with zero — a fixed constant that does
+# NOT use group statistics and therefore cannot leak future data.
+final_df[lag_cols] = final_df[lag_cols].fillna(0.0)
 
 after_nan = final_df[lag_cols].isna().sum().sum()
 print(f"  Total NaNs after filling  : {after_nan}")
