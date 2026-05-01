@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-04-15T13:49:06.505938",
+    "generated_at": "2026-04-20T20:32:21.873208",
     "horizon": "1-to-30-days",
     "forecasts": {
         "arhar (tur dal)": {
@@ -9,264 +9,264 @@
                 {
                     "day_ahead": 1,
                     "date": "2025-10-31",
-                    "predicted_price": 10783.46,
-                    "lower_bound_95": 8550.6,
-                    "upper_bound_95": 13323.81,
-                    "predicted_pct_change": 0.78
+                    "predicted_price": 10712.78,
+                    "lower_bound_95": 8498.55,
+                    "upper_bound_95": 13168.27,
+                    "predicted_pct_change": 0.12
                 },
                 {
                     "day_ahead": 2,
                     "date": "2025-11-01",
-                    "predicted_price": 10461.44,
-                    "lower_bound_95": 8451.35,
-                    "upper_bound_95": 12725.27,
-                    "predicted_pct_change": -2.23
+                    "predicted_price": 10480.12,
+                    "lower_bound_95": 8570.05,
+                    "upper_bound_95": 12732.57,
+                    "predicted_pct_change": -2.05
                 },
                 {
                     "day_ahead": 3,
                     "date": "2025-11-02",
-                    "predicted_price": 10729.3,
-                    "lower_bound_95": 8537.33,
-                    "upper_bound_95": 12964.39,
-                    "predicted_pct_change": 0.27
+                    "predicted_price": 10741.71,
+                    "lower_bound_95": 8589.44,
+                    "upper_bound_95": 13022.17,
+                    "predicted_pct_change": 0.39
                 },
                 {
                     "day_ahead": 4,
                     "date": "2025-11-03",
-                    "predicted_price": 10549.39,
-                    "lower_bound_95": 8510.51,
-                    "upper_bound_95": 13061.61,
-                    "predicted_pct_change": -1.41
+                    "predicted_price": 10758.31,
+                    "lower_bound_95": 8670.13,
+                    "upper_bound_95": 13319.83,
+                    "predicted_pct_change": 0.54
                 },
                 {
                     "day_ahead": 5,
                     "date": "2025-11-04",
-                    "predicted_price": 10651.05,
-                    "lower_bound_95": 8256.76,
-                    "upper_bound_95": 13204.92,
-                    "predicted_pct_change": -0.46
+                    "predicted_price": 10665.3,
+                    "lower_bound_95": 8258.67,
+                    "upper_bound_95": 13183.38,
+                    "predicted_pct_change": -0.32
                 },
                 {
                     "day_ahead": 6,
                     "date": "2025-11-05",
-                    "predicted_price": 10721.01,
-                    "lower_bound_95": 8406.34,
-                    "upper_bound_95": 13508.98,
+                    "predicted_price": 10721.03,
+                    "lower_bound_95": 8465.98,
+                    "upper_bound_95": 13333.63,
                     "predicted_pct_change": 0.2
                 },
                 {
                     "day_ahead": 7,
                     "date": "2025-11-06",
-                    "predicted_price": 10737.58,
-                    "lower_bound_95": 8611.41,
-                    "upper_bound_95": 13041.81,
-                    "predicted_pct_change": 0.35
+                    "predicted_price": 10764.28,
+                    "lower_bound_95": 8633.93,
+                    "upper_bound_95": 13069.75,
+                    "predicted_pct_change": 0.6
                 },
                 {
                     "day_ahead": 8,
                     "date": "2025-11-07",
-                    "predicted_price": 10598.66,
-                    "lower_bound_95": 7958.7,
-                    "upper_bound_95": 13212.5,
-                    "predicted_pct_change": -0.95
+                    "predicted_price": 10604.43,
+                    "lower_bound_95": 8063.75,
+                    "upper_bound_95": 13253.73,
+                    "predicted_pct_change": -0.89
                 },
                 {
                     "day_ahead": 9,
                     "date": "2025-11-08",
-                    "predicted_price": 10722.25,
-                    "lower_bound_95": 8184.81,
-                    "upper_bound_95": 13220.91,
-                    "predicted_pct_change": 0.21
+                    "predicted_price": 10653.14,
+                    "lower_bound_95": 8197.82,
+                    "upper_bound_95": 13153.34,
+                    "predicted_pct_change": -0.44
                 },
                 {
                     "day_ahead": 10,
                     "date": "2025-11-09",
-                    "predicted_price": 10748.25,
-                    "lower_bound_95": 8124.87,
-                    "upper_bound_95": 13299.03,
-                    "predicted_pct_change": 0.45
+                    "predicted_price": 10743.67,
+                    "lower_bound_95": 8213.67,
+                    "upper_bound_95": 13311.7,
+                    "predicted_pct_change": 0.41
                 },
                 {
                     "day_ahead": 11,
                     "date": "2025-11-10",
-                    "predicted_price": 10762.33,
-                    "lower_bound_95": 8273.7,
-                    "upper_bound_95": 13427.45,
-                    "predicted_pct_change": 0.58
+                    "predicted_price": 10761.35,
+                    "lower_bound_95": 8393.04,
+                    "upper_bound_95": 13482.4,
+                    "predicted_pct_change": 0.57
                 },
                 {
                     "day_ahead": 12,
                     "date": "2025-11-11",
-                    "predicted_price": 10748.64,
-                    "lower_bound_95": 8092.74,
-                    "upper_bound_95": 13279.57,
-                    "predicted_pct_change": 0.45
+                    "predicted_price": 10707.25,
+                    "lower_bound_95": 8054.19,
+                    "upper_bound_95": 13290.78,
+                    "predicted_pct_change": 0.07
                 },
                 {
                     "day_ahead": 13,
                     "date": "2025-11-12",
-                    "predicted_price": 10778.58,
-                    "lower_bound_95": 8275.35,
-                    "upper_bound_95": 13463.07,
-                    "predicted_pct_change": 0.73
+                    "predicted_price": 10701.21,
+                    "lower_bound_95": 8140.19,
+                    "upper_bound_95": 13346.64,
+                    "predicted_pct_change": 0.01
                 },
                 {
                     "day_ahead": 14,
                     "date": "2025-11-13",
-                    "predicted_price": 10763.5,
-                    "lower_bound_95": 8300.07,
-                    "upper_bound_95": 13087.92,
-                    "predicted_pct_change": 0.59
+                    "predicted_price": 10762.36,
+                    "lower_bound_95": 8300.54,
+                    "upper_bound_95": 13052.88,
+                    "predicted_pct_change": 0.58
                 },
                 {
                     "day_ahead": 15,
                     "date": "2025-11-14",
-                    "predicted_price": 10757.55,
-                    "lower_bound_95": 8139.45,
-                    "upper_bound_95": 13388.11,
-                    "predicted_pct_change": 0.54
+                    "predicted_price": 10701.5,
+                    "lower_bound_95": 8050.37,
+                    "upper_bound_95": 13433.1,
+                    "predicted_pct_change": 0.01
                 },
                 {
                     "day_ahead": 16,
                     "date": "2025-11-15",
-                    "predicted_price": 10735.61,
-                    "lower_bound_95": 8201.11,
-                    "upper_bound_95": 13298.19,
-                    "predicted_pct_change": 0.33
+                    "predicted_price": 10667.67,
+                    "lower_bound_95": 8249.98,
+                    "upper_bound_95": 13282.4,
+                    "predicted_pct_change": -0.3
                 },
                 {
                     "day_ahead": 17,
                     "date": "2025-11-16",
-                    "predicted_price": 10725.14,
-                    "lower_bound_95": 8061.19,
-                    "upper_bound_95": 13438.22,
-                    "predicted_pct_change": 0.23
+                    "predicted_price": 10706.51,
+                    "lower_bound_95": 8085.03,
+                    "upper_bound_95": 13424.35,
+                    "predicted_pct_change": 0.06
                 },
                 {
                     "day_ahead": 18,
                     "date": "2025-11-17",
-                    "predicted_price": 10715.01,
-                    "lower_bound_95": 8141.1,
-                    "upper_bound_95": 13382.69,
-                    "predicted_pct_change": 0.14
+                    "predicted_price": 10735.49,
+                    "lower_bound_95": 8174.83,
+                    "upper_bound_95": 13411.2,
+                    "predicted_pct_change": 0.33
                 },
                 {
                     "day_ahead": 19,
                     "date": "2025-11-18",
-                    "predicted_price": 10733.28,
-                    "lower_bound_95": 8006.63,
-                    "upper_bound_95": 13287.68,
-                    "predicted_pct_change": 0.31
+                    "predicted_price": 10657.17,
+                    "lower_bound_95": 7988.7,
+                    "upper_bound_95": 13193.0,
+                    "predicted_pct_change": -0.4
                 },
                 {
                     "day_ahead": 20,
                     "date": "2025-11-19",
-                    "predicted_price": 10640.49,
-                    "lower_bound_95": 7936.43,
-                    "upper_bound_95": 13425.25,
-                    "predicted_pct_change": -0.56
+                    "predicted_price": 10572.65,
+                    "lower_bound_95": 7877.83,
+                    "upper_bound_95": 13311.09,
+                    "predicted_pct_change": -1.19
                 },
                 {
                     "day_ahead": 21,
                     "date": "2025-11-20",
-                    "predicted_price": 10759.61,
-                    "lower_bound_95": 8138.66,
-                    "upper_bound_95": 13005.32,
-                    "predicted_pct_change": 0.56
+                    "predicted_price": 10766.11,
+                    "lower_bound_95": 8038.75,
+                    "upper_bound_95": 13011.86,
+                    "predicted_pct_change": 0.62
                 },
                 {
                     "day_ahead": 22,
                     "date": "2025-11-21",
-                    "predicted_price": 10696.3,
-                    "lower_bound_95": 8010.09,
-                    "upper_bound_95": 13261.75,
-                    "predicted_pct_change": -0.03
+                    "predicted_price": 10669.8,
+                    "lower_bound_95": 7967.79,
+                    "upper_bound_95": 13240.0,
+                    "predicted_pct_change": -0.28
                 },
                 {
                     "day_ahead": 23,
                     "date": "2025-11-22",
-                    "predicted_price": 10505.16,
-                    "lower_bound_95": 7918.66,
-                    "upper_bound_95": 13032.18,
-                    "predicted_pct_change": -1.82
+                    "predicted_price": 10720.39,
+                    "lower_bound_95": 8052.29,
+                    "upper_bound_95": 13311.21,
+                    "predicted_pct_change": 0.19
                 },
                 {
                     "day_ahead": 24,
                     "date": "2025-11-23",
-                    "predicted_price": 10619.58,
-                    "lower_bound_95": 7955.78,
-                    "upper_bound_95": 13696.15,
-                    "predicted_pct_change": -0.75
+                    "predicted_price": 10626.88,
+                    "lower_bound_95": 7940.0,
+                    "upper_bound_95": 13611.05,
+                    "predicted_pct_change": -0.68
                 },
                 {
                     "day_ahead": 25,
                     "date": "2025-11-24",
-                    "predicted_price": 10515.52,
-                    "lower_bound_95": 7872.18,
-                    "upper_bound_95": 13137.28,
-                    "predicted_pct_change": -1.72
+                    "predicted_price": 10498.82,
+                    "lower_bound_95": 7762.46,
+                    "upper_bound_95": 13155.86,
+                    "predicted_pct_change": -1.88
                 },
                 {
                     "day_ahead": 26,
                     "date": "2025-11-25",
-                    "predicted_price": 10579.27,
-                    "lower_bound_95": 7923.62,
-                    "upper_bound_95": 13209.76,
-                    "predicted_pct_change": -1.13
+                    "predicted_price": 10578.24,
+                    "lower_bound_95": 7919.26,
+                    "upper_bound_95": 13262.4,
+                    "predicted_pct_change": -1.14
                 },
                 {
                     "day_ahead": 27,
                     "date": "2025-11-26",
-                    "predicted_price": 10357.6,
-                    "lower_bound_95": 7826.32,
-                    "upper_bound_95": 13076.33,
-                    "predicted_pct_change": -3.2
+                    "predicted_price": 10463.2,
+                    "lower_bound_95": 7846.0,
+                    "upper_bound_95": 13273.74,
+                    "predicted_pct_change": -2.21
                 },
                 {
                     "day_ahead": 28,
                     "date": "2025-11-27",
-                    "predicted_price": 10636.3,
-                    "lower_bound_95": 7962.55,
-                    "upper_bound_95": 12907.82,
-                    "predicted_pct_change": -0.6
+                    "predicted_price": 10654.87,
+                    "lower_bound_95": 7991.11,
+                    "upper_bound_95": 12974.36,
+                    "predicted_pct_change": -0.42
                 },
                 {
                     "day_ahead": 29,
                     "date": "2025-11-28",
-                    "predicted_price": 10502.27,
-                    "lower_bound_95": 7896.47,
-                    "upper_bound_95": 13255.58,
-                    "predicted_pct_change": -1.85
+                    "predicted_price": 10571.72,
+                    "lower_bound_95": 7887.6,
+                    "upper_bound_95": 13350.14,
+                    "predicted_pct_change": -1.2
                 },
                 {
                     "day_ahead": 30,
                     "date": "2025-11-29",
-                    "predicted_price": 10311.67,
-                    "lower_bound_95": 7805.31,
-                    "upper_bound_95": 12863.42,
-                    "predicted_pct_change": -3.63
+                    "predicted_price": 10477.21,
+                    "lower_bound_95": 7849.11,
+                    "upper_bound_95": 13145.35,
+                    "predicted_pct_change": -2.08
                 }
             ],
             "top_price_drivers": [
                 {
-                    "feature": "price_norm_trailing",
+                    "feature": "price_lag_14",
+                    "impact": "Lower",
+                    "strength": "1.399999976158142%"
+                },
+                {
+                    "feature": "arrivals_lag_7",
+                    "impact": "Higher",
+                    "strength": "0.4000000059604645%"
+                },
+                {
+                    "feature": "price_volatility_30",
+                    "impact": "Lower",
+                    "strength": "0.4000000059604645%"
+                },
+                {
+                    "feature": "price_relative_strength",
                     "impact": "Higher",
                     "strength": "0.20000000298023224%"
-                },
-                {
-                    "feature": "price_lag_1",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
-                },
-                {
-                    "feature": "yoy_price_ratio",
-                    "impact": "Higher",
-                    "strength": "0.10000000149011612%"
-                },
-                {
-                    "feature": "price_rolling_mean_14",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
                 }
             ]
         },
@@ -277,264 +277,264 @@
                 {
                     "day_ahead": 1,
                     "date": "2025-10-31",
-                    "predicted_price": 4166.76,
-                    "lower_bound_95": 3307.23,
-                    "upper_bound_95": 5144.65,
-                    "predicted_pct_change": 1.16
+                    "predicted_price": 4149.38,
+                    "lower_bound_95": 3297.02,
+                    "upper_bound_95": 5094.6,
+                    "predicted_pct_change": 0.74
                 },
                 {
                     "day_ahead": 2,
                     "date": "2025-11-01",
-                    "predicted_price": 4177.5,
-                    "lower_bound_95": 3403.73,
-                    "upper_bound_95": 5048.95,
-                    "predicted_pct_change": 1.42
+                    "predicted_price": 4143.09,
+                    "lower_bound_95": 3407.82,
+                    "upper_bound_95": 5010.15,
+                    "predicted_pct_change": 0.59
                 },
                 {
                     "day_ahead": 3,
                     "date": "2025-11-02",
-                    "predicted_price": 4126.84,
-                    "lower_bound_95": 3283.06,
-                    "upper_bound_95": 4987.22,
-                    "predicted_pct_change": 0.19
+                    "predicted_price": 4070.61,
+                    "lower_bound_95": 3242.11,
+                    "upper_bound_95": 4948.46,
+                    "predicted_pct_change": -1.17
                 },
                 {
                     "day_ahead": 4,
                     "date": "2025-11-03",
-                    "predicted_price": 4257.22,
-                    "lower_bound_95": 3472.37,
-                    "upper_bound_95": 5224.28,
-                    "predicted_pct_change": 3.36
+                    "predicted_price": 4192.3,
+                    "lower_bound_95": 3388.47,
+                    "upper_bound_95": 5178.34,
+                    "predicted_pct_change": 1.78
                 },
                 {
                     "day_ahead": 5,
                     "date": "2025-11-04",
-                    "predicted_price": 4195.05,
-                    "lower_bound_95": 3273.39,
-                    "upper_bound_95": 5178.14,
-                    "predicted_pct_change": 1.85
+                    "predicted_price": 4143.81,
+                    "lower_bound_95": 3217.39,
+                    "upper_bound_95": 5113.12,
+                    "predicted_pct_change": 0.6
                 },
                 {
                     "day_ahead": 6,
                     "date": "2025-11-05",
-                    "predicted_price": 4179.44,
-                    "lower_bound_95": 3288.43,
-                    "upper_bound_95": 5252.65,
-                    "predicted_pct_change": 1.47
+                    "predicted_price": 4141.72,
+                    "lower_bound_95": 3273.65,
+                    "upper_bound_95": 5147.42,
+                    "predicted_pct_change": 0.55
                 },
                 {
                     "day_ahead": 7,
                     "date": "2025-11-06",
-                    "predicted_price": 4138.77,
-                    "lower_bound_95": 3320.32,
-                    "upper_bound_95": 5025.77,
-                    "predicted_pct_change": 0.48
+                    "predicted_price": 4139.77,
+                    "lower_bound_95": 3319.71,
+                    "upper_bound_95": 5027.25,
+                    "predicted_pct_change": 0.51
                 },
                 {
                     "day_ahead": 8,
                     "date": "2025-11-07",
-                    "predicted_price": 4160.62,
-                    "lower_bound_95": 3144.38,
-                    "upper_bound_95": 5166.8,
-                    "predicted_pct_change": 1.01
+                    "predicted_price": 4138.93,
+                    "lower_bound_95": 3160.91,
+                    "upper_bound_95": 5158.76,
+                    "predicted_pct_change": 0.49
                 },
                 {
                     "day_ahead": 9,
                     "date": "2025-11-08",
-                    "predicted_price": 4161.37,
-                    "lower_bound_95": 3184.6,
-                    "upper_bound_95": 5123.21,
-                    "predicted_pct_change": 1.03
+                    "predicted_price": 4091.48,
+                    "lower_bound_95": 3146.32,
+                    "upper_bound_95": 5053.91,
+                    "predicted_pct_change": -0.67
                 },
                 {
                     "day_ahead": 10,
                     "date": "2025-11-09",
-                    "predicted_price": 4078.75,
-                    "lower_bound_95": 3068.9,
-                    "upper_bound_95": 5060.65,
-                    "predicted_pct_change": -0.97
+                    "predicted_price": 4020.68,
+                    "lower_bound_95": 3046.77,
+                    "upper_bound_95": 5009.23,
+                    "predicted_pct_change": -2.38
                 },
                 {
                     "day_ahead": 11,
                     "date": "2025-11-10",
-                    "predicted_price": 4187.49,
-                    "lower_bound_95": 3229.51,
-                    "upper_bound_95": 5213.41,
-                    "predicted_pct_change": 1.67
+                    "predicted_price": 4168.17,
+                    "lower_bound_95": 3256.5,
+                    "upper_bound_95": 5215.62,
+                    "predicted_pct_change": 1.2
                 },
                 {
                     "day_ahead": 12,
                     "date": "2025-11-11",
-                    "predicted_price": 4148.3,
-                    "lower_bound_95": 3125.93,
-                    "upper_bound_95": 5122.56,
-                    "predicted_pct_change": 0.71
+                    "predicted_price": 4143.84,
+                    "lower_bound_95": 3122.57,
+                    "upper_bound_95": 5138.35,
+                    "predicted_pct_change": 0.61
                 },
                 {
                     "day_ahead": 13,
                     "date": "2025-11-12",
-                    "predicted_price": 4143.64,
-                    "lower_bound_95": 3180.04,
-                    "upper_bound_95": 5177.01,
-                    "predicted_pct_change": 0.6
+                    "predicted_price": 4104.06,
+                    "lower_bound_95": 3118.21,
+                    "upper_bound_95": 5122.4,
+                    "predicted_pct_change": -0.36
                 },
                 {
                     "day_ahead": 14,
                     "date": "2025-11-13",
-                    "predicted_price": 4147.25,
-                    "lower_bound_95": 3198.96,
-                    "upper_bound_95": 5042.01,
-                    "predicted_pct_change": 0.69
+                    "predicted_price": 4157.01,
+                    "lower_bound_95": 3209.35,
+                    "upper_bound_95": 5038.73,
+                    "predicted_pct_change": 0.93
                 },
                 {
                     "day_ahead": 15,
                     "date": "2025-11-14",
-                    "predicted_price": 4168.91,
-                    "lower_bound_95": 3161.09,
-                    "upper_bound_95": 5181.53,
-                    "predicted_pct_change": 1.21
+                    "predicted_price": 4130.44,
+                    "lower_bound_95": 3109.9,
+                    "upper_bound_95": 5181.95,
+                    "predicted_pct_change": 0.28
                 },
                 {
                     "day_ahead": 16,
                     "date": "2025-11-15",
-                    "predicted_price": 4165.82,
-                    "lower_bound_95": 3190.19,
-                    "upper_bound_95": 5152.27,
-                    "predicted_pct_change": 1.14
+                    "predicted_price": 4126.71,
+                    "lower_bound_95": 3196.03,
+                    "upper_bound_95": 5133.23,
+                    "predicted_pct_change": 0.19
                 },
                 {
                     "day_ahead": 17,
                     "date": "2025-11-16",
-                    "predicted_price": 4052.9,
-                    "lower_bound_95": 3027.43,
-                    "upper_bound_95": 5097.28,
-                    "predicted_pct_change": -1.6
+                    "predicted_price": 4036.64,
+                    "lower_bound_95": 3027.52,
+                    "upper_bound_95": 5082.86,
+                    "predicted_pct_change": -2.0
                 },
                 {
                     "day_ahead": 18,
                     "date": "2025-11-17",
-                    "predicted_price": 4185.87,
-                    "lower_bound_95": 3195.06,
-                    "upper_bound_95": 5212.77,
-                    "predicted_pct_change": 1.63
+                    "predicted_price": 4176.31,
+                    "lower_bound_95": 3190.6,
+                    "upper_bound_95": 5206.3,
+                    "predicted_pct_change": 1.39
                 },
                 {
                     "day_ahead": 19,
                     "date": "2025-11-18",
-                    "predicted_price": 4170.35,
-                    "lower_bound_95": 3120.75,
-                    "upper_bound_95": 5153.65,
-                    "predicted_pct_change": 1.25
+                    "predicted_price": 4149.38,
+                    "lower_bound_95": 3122.17,
+                    "upper_bound_95": 5125.53,
+                    "predicted_pct_change": 0.74
                 },
                 {
                     "day_ahead": 20,
                     "date": "2025-11-19",
-                    "predicted_price": 4184.64,
-                    "lower_bound_95": 3143.73,
-                    "upper_bound_95": 5256.61,
-                    "predicted_pct_change": 1.6
+                    "predicted_price": 4152.53,
+                    "lower_bound_95": 3115.18,
+                    "upper_bound_95": 5206.68,
+                    "predicted_pct_change": 0.82
                 },
                 {
                     "day_ahead": 21,
                     "date": "2025-11-20",
-                    "predicted_price": 4148.58,
-                    "lower_bound_95": 3139.66,
-                    "upper_bound_95": 5013.05,
-                    "predicted_pct_change": 0.72
+                    "predicted_price": 4143.21,
+                    "lower_bound_95": 3093.33,
+                    "upper_bound_95": 5007.7,
+                    "predicted_pct_change": 0.59
                 },
                 {
                     "day_ahead": 22,
                     "date": "2025-11-21",
-                    "predicted_price": 4165.92,
-                    "lower_bound_95": 3131.88,
-                    "upper_bound_95": 5153.47,
-                    "predicted_pct_change": 1.14
+                    "predicted_price": 4161.6,
+                    "lower_bound_95": 3121.48,
+                    "upper_bound_95": 5150.98,
+                    "predicted_pct_change": 1.04
                 },
                 {
                     "day_ahead": 23,
                     "date": "2025-11-22",
-                    "predicted_price": 4142.14,
-                    "lower_bound_95": 3146.49,
-                    "upper_bound_95": 5114.9,
-                    "predicted_pct_change": 0.56
+                    "predicted_price": 4134.1,
+                    "lower_bound_95": 3107.03,
+                    "upper_bound_95": 5131.42,
+                    "predicted_pct_change": 0.37
                 },
                 {
                     "day_ahead": 24,
                     "date": "2025-11-23",
-                    "predicted_price": 4123.57,
-                    "lower_bound_95": 3098.16,
-                    "upper_bound_95": 5307.88,
-                    "predicted_pct_change": 0.11
+                    "predicted_price": 4095.76,
+                    "lower_bound_95": 3061.46,
+                    "upper_bound_95": 5244.49,
+                    "predicted_pct_change": -0.56
                 },
                 {
                     "day_ahead": 25,
                     "date": "2025-11-24",
-                    "predicted_price": 4202.15,
-                    "lower_bound_95": 3184.62,
-                    "upper_bound_95": 5211.38,
-                    "predicted_pct_change": 2.02
+                    "predicted_price": 4194.24,
+                    "lower_bound_95": 3140.9,
+                    "upper_bound_95": 5217.05,
+                    "predicted_pct_change": 1.83
                 },
                 {
                     "day_ahead": 26,
                     "date": "2025-11-25",
-                    "predicted_price": 4173.03,
-                    "lower_bound_95": 3150.75,
-                    "upper_bound_95": 5185.62,
-                    "predicted_pct_change": 1.31
+                    "predicted_price": 4226.87,
+                    "lower_bound_95": 3203.32,
+                    "upper_bound_95": 5260.12,
+                    "predicted_pct_change": 2.62
                 },
                 {
                     "day_ahead": 27,
                     "date": "2025-11-26",
-                    "predicted_price": 4153.54,
-                    "lower_bound_95": 3179.14,
-                    "upper_bound_95": 5200.1,
-                    "predicted_pct_change": 0.84
+                    "predicted_price": 4129.51,
+                    "lower_bound_95": 3122.04,
+                    "upper_bound_95": 5211.4,
+                    "predicted_pct_change": 0.26
                 },
                 {
                     "day_ahead": 28,
                     "date": "2025-11-27",
-                    "predicted_price": 4159.52,
-                    "lower_bound_95": 3130.28,
-                    "upper_bound_95": 5033.92,
-                    "predicted_pct_change": 0.99
+                    "predicted_price": 4162.57,
+                    "lower_bound_95": 3137.17,
+                    "upper_bound_95": 5055.44,
+                    "predicted_pct_change": 1.06
                 },
                 {
                     "day_ahead": 29,
                     "date": "2025-11-28",
-                    "predicted_price": 4176.19,
-                    "lower_bound_95": 3173.1,
-                    "upper_bound_95": 5236.06,
-                    "predicted_pct_change": 1.39
+                    "predicted_price": 4187.03,
+                    "lower_bound_95": 3153.8,
+                    "upper_bound_95": 5256.56,
+                    "predicted_pct_change": 1.65
                 },
                 {
                     "day_ahead": 30,
                     "date": "2025-11-29",
-                    "predicted_price": 4163.05,
-                    "lower_bound_95": 3198.24,
-                    "upper_bound_95": 5145.32,
-                    "predicted_pct_change": 1.07
+                    "predicted_price": 4141.31,
+                    "lower_bound_95": 3129.65,
+                    "upper_bound_95": 5168.4,
+                    "predicted_pct_change": 0.54
                 }
             ],
             "top_price_drivers": [
                 {
+                    "feature": "price_lag_14",
+                    "impact": "Lower",
+                    "strength": "1.5%"
+                },
+                {
                     "feature": "arrivals_lag_7",
                     "impact": "Higher",
-                    "strength": "0.30000001192092896%"
+                    "strength": "0.800000011920929%"
                 },
                 {
-                    "feature": "price_pct_change_3",
+                    "feature": "price_volatility_30",
+                    "impact": "Lower",
+                    "strength": "0.5%"
+                },
+                {
+                    "feature": "price_relative_strength",
                     "impact": "Higher",
                     "strength": "0.20000000298023224%"
-                },
-                {
-                    "feature": "price_volatility_7",
-                    "impact": "Higher",
-                    "strength": "0.10000000149011612%"
-                },
-                {
-                    "feature": "price_norm_trailing",
-                    "impact": "Higher",
-                    "strength": "0.10000000149011612%"
                 }
             ]
         },
@@ -545,264 +545,264 @@
                 {
                     "day_ahead": 1,
                     "date": "2025-10-31",
-                    "predicted_price": 2702.28,
-                    "lower_bound_95": 2141.92,
-                    "upper_bound_95": 3339.81,
-                    "predicted_pct_change": 0.63
+                    "predicted_price": 2716.71,
+                    "lower_bound_95": 2161.02,
+                    "upper_bound_95": 3332.94,
+                    "predicted_pct_change": 1.17
                 },
                 {
                     "day_ahead": 2,
                     "date": "2025-11-01",
-                    "predicted_price": 2738.07,
-                    "lower_bound_95": 2233.61,
-                    "upper_bound_95": 3306.2,
-                    "predicted_pct_change": 1.97
+                    "predicted_price": 2708.29,
+                    "lower_bound_95": 2228.94,
+                    "upper_bound_95": 3273.57,
+                    "predicted_pct_change": 0.86
                 },
                 {
                     "day_ahead": 3,
                     "date": "2025-11-02",
-                    "predicted_price": 2691.48,
-                    "lower_bound_95": 2141.38,
-                    "upper_bound_95": 3252.4,
-                    "predicted_pct_change": 0.23
+                    "predicted_price": 2682.41,
+                    "lower_bound_95": 2142.27,
+                    "upper_bound_95": 3254.72,
+                    "predicted_pct_change": -0.11
                 },
                 {
                     "day_ahead": 4,
                     "date": "2025-11-03",
-                    "predicted_price": 2700.01,
-                    "lower_bound_95": 2188.33,
-                    "upper_bound_95": 3330.49,
-                    "predicted_pct_change": 0.55
+                    "predicted_price": 2701.89,
+                    "lower_bound_95": 2177.83,
+                    "upper_bound_95": 3344.73,
+                    "predicted_pct_change": 0.62
                 },
                 {
                     "day_ahead": 5,
                     "date": "2025-11-04",
-                    "predicted_price": 2702.07,
-                    "lower_bound_95": 2101.19,
-                    "upper_bound_95": 3342.99,
-                    "predicted_pct_change": 0.62
+                    "predicted_price": 2675.15,
+                    "lower_bound_95": 2071.18,
+                    "upper_bound_95": 3307.09,
+                    "predicted_pct_change": -0.38
                 },
                 {
                     "day_ahead": 6,
                     "date": "2025-11-05",
-                    "predicted_price": 2699.0,
-                    "lower_bound_95": 2118.11,
-                    "upper_bound_95": 3398.68,
-                    "predicted_pct_change": 0.51
+                    "predicted_price": 2672.89,
+                    "lower_bound_95": 2106.96,
+                    "upper_bound_95": 3328.56,
+                    "predicted_pct_change": -0.46
                 },
                 {
                     "day_ahead": 7,
                     "date": "2025-11-06",
-                    "predicted_price": 2698.33,
-                    "lower_bound_95": 2164.74,
-                    "upper_bound_95": 3276.6,
-                    "predicted_pct_change": 0.49
+                    "predicted_price": 2698.85,
+                    "lower_bound_95": 2164.22,
+                    "upper_bound_95": 3277.44,
+                    "predicted_pct_change": 0.51
                 },
                 {
                     "day_ahead": 8,
                     "date": "2025-11-07",
-                    "predicted_price": 2695.13,
-                    "lower_bound_95": 2032.6,
-                    "upper_bound_95": 3351.11,
-                    "predicted_pct_change": 0.37
+                    "predicted_price": 2690.3,
+                    "lower_bound_95": 2052.69,
+                    "upper_bound_95": 3355.17,
+                    "predicted_pct_change": 0.19
                 },
                 {
                     "day_ahead": 9,
                     "date": "2025-11-08",
-                    "predicted_price": 2694.39,
-                    "lower_bound_95": 2057.59,
-                    "upper_bound_95": 3321.45,
-                    "predicted_pct_change": 0.34
+                    "predicted_price": 2681.32,
+                    "lower_bound_95": 2065.13,
+                    "upper_bound_95": 3308.78,
+                    "predicted_pct_change": -0.15
                 },
                 {
                     "day_ahead": 10,
                     "date": "2025-11-09",
-                    "predicted_price": 2687.97,
-                    "lower_bound_95": 2029.6,
-                    "upper_bound_95": 3328.12,
-                    "predicted_pct_change": 0.1
+                    "predicted_price": 2690.73,
+                    "lower_bound_95": 2055.79,
+                    "upper_bound_95": 3335.2,
+                    "predicted_pct_change": 0.2
                 },
                 {
                     "day_ahead": 11,
                     "date": "2025-11-10",
-                    "predicted_price": 2695.51,
-                    "lower_bound_95": 2070.96,
-                    "upper_bound_95": 3364.36,
-                    "predicted_pct_change": 0.38
+                    "predicted_price": 2696.84,
+                    "lower_bound_95": 2102.49,
+                    "upper_bound_95": 3379.72,
+                    "predicted_pct_change": 0.43
                 },
                 {
                     "day_ahead": 12,
                     "date": "2025-11-11",
-                    "predicted_price": 2739.42,
-                    "lower_bound_95": 2072.9,
-                    "upper_bound_95": 3374.59,
-                    "predicted_pct_change": 2.02
+                    "predicted_price": 2701.77,
+                    "lower_bound_95": 2035.96,
+                    "upper_bound_95": 3350.14,
+                    "predicted_pct_change": 0.61
                 },
                 {
                     "day_ahead": 13,
                     "date": "2025-11-12",
-                    "predicted_price": 2689.22,
-                    "lower_bound_95": 2061.01,
-                    "upper_bound_95": 3362.92,
-                    "predicted_pct_change": 0.15
+                    "predicted_price": 2681.86,
+                    "lower_bound_95": 2039.15,
+                    "upper_bound_95": 3345.77,
+                    "predicted_pct_change": -0.13
                 },
                 {
                     "day_ahead": 14,
                     "date": "2025-11-13",
-                    "predicted_price": 2702.08,
-                    "lower_bound_95": 2083.86,
-                    "upper_bound_95": 3285.42,
-                    "predicted_pct_change": 0.63
+                    "predicted_price": 2703.6,
+                    "lower_bound_95": 2085.78,
+                    "upper_bound_95": 3278.44,
+                    "predicted_pct_change": 0.68
                 },
                 {
                     "day_ahead": 15,
                     "date": "2025-11-14",
-                    "predicted_price": 2697.76,
-                    "lower_bound_95": 2040.72,
-                    "upper_bound_95": 3357.93,
-                    "predicted_pct_change": 0.46
+                    "predicted_price": 2703.62,
+                    "lower_bound_95": 2038.29,
+                    "upper_bound_95": 3389.15,
+                    "predicted_pct_change": 0.68
                 },
                 {
                     "day_ahead": 16,
                     "date": "2025-11-15",
-                    "predicted_price": 2691.51,
-                    "lower_bound_95": 2055.45,
-                    "upper_bound_95": 3334.62,
-                    "predicted_pct_change": 0.23
+                    "predicted_price": 2716.13,
+                    "lower_bound_95": 2109.38,
+                    "upper_bound_95": 3372.32,
+                    "predicted_pct_change": 1.15
                 },
                 {
                     "day_ahead": 17,
                     "date": "2025-11-16",
-                    "predicted_price": 2690.93,
-                    "lower_bound_95": 2022.38,
-                    "upper_bound_95": 3371.81,
-                    "predicted_pct_change": 0.21
+                    "predicted_price": 2690.36,
+                    "lower_bound_95": 2032.47,
+                    "upper_bound_95": 3372.44,
+                    "predicted_pct_change": 0.19
                 },
                 {
                     "day_ahead": 18,
                     "date": "2025-11-17",
-                    "predicted_price": 2703.54,
-                    "lower_bound_95": 2057.59,
-                    "upper_bound_95": 3373.03,
-                    "predicted_pct_change": 0.68
+                    "predicted_price": 2722.05,
+                    "lower_bound_95": 2079.42,
+                    "upper_bound_95": 3393.55,
+                    "predicted_pct_change": 1.37
                 },
                 {
                     "day_ahead": 19,
                     "date": "2025-11-18",
-                    "predicted_price": 2701.9,
-                    "lower_bound_95": 2017.61,
-                    "upper_bound_95": 3342.95,
-                    "predicted_pct_change": 0.62
+                    "predicted_price": 2709.45,
+                    "lower_bound_95": 2039.76,
+                    "upper_bound_95": 3345.84,
+                    "predicted_pct_change": 0.9
                 },
                 {
                     "day_ahead": 20,
                     "date": "2025-11-19",
-                    "predicted_price": 2695.44,
-                    "lower_bound_95": 2016.82,
-                    "upper_bound_95": 3394.31,
-                    "predicted_pct_change": 0.38
+                    "predicted_price": 2694.84,
+                    "lower_bound_95": 2018.55,
+                    "upper_bound_95": 3382.09,
+                    "predicted_pct_change": 0.36
                 },
                 {
                     "day_ahead": 21,
                     "date": "2025-11-20",
-                    "predicted_price": 2741.69,
-                    "lower_bound_95": 2083.94,
-                    "upper_bound_95": 3305.28,
-                    "predicted_pct_change": 2.1
+                    "predicted_price": 2702.82,
+                    "lower_bound_95": 2018.35,
+                    "upper_bound_95": 3266.41,
+                    "predicted_pct_change": 0.65
                 },
                 {
                     "day_ahead": 22,
                     "date": "2025-11-21",
-                    "predicted_price": 2692.99,
-                    "lower_bound_95": 2018.85,
-                    "upper_bound_95": 3336.82,
-                    "predicted_pct_change": 0.29
+                    "predicted_price": 2695.79,
+                    "lower_bound_95": 2017.69,
+                    "upper_bound_95": 3340.81,
+                    "predicted_pct_change": 0.39
                 },
                 {
                     "day_ahead": 23,
                     "date": "2025-11-22",
-                    "predicted_price": 2703.3,
-                    "lower_bound_95": 2054.19,
-                    "upper_bound_95": 3337.48,
-                    "predicted_pct_change": 0.67
+                    "predicted_price": 2697.99,
+                    "lower_bound_95": 2028.4,
+                    "upper_bound_95": 3348.19,
+                    "predicted_pct_change": 0.47
                 },
                 {
                     "day_ahead": 24,
                     "date": "2025-11-23",
-                    "predicted_price": 2699.5,
-                    "lower_bound_95": 2030.99,
-                    "upper_bound_95": 3471.6,
-                    "predicted_pct_change": 0.53
+                    "predicted_price": 2687.78,
+                    "lower_bound_95": 2013.47,
+                    "upper_bound_95": 3436.69,
+                    "predicted_pct_change": 0.09
                 },
                 {
                     "day_ahead": 25,
                     "date": "2025-11-24",
-                    "predicted_price": 2714.07,
-                    "lower_bound_95": 2050.7,
-                    "upper_bound_95": 3372.03,
-                    "predicted_pct_change": 1.07
+                    "predicted_price": 2712.27,
+                    "lower_bound_95": 2025.55,
+                    "upper_bound_95": 3379.08,
+                    "predicted_pct_change": 1.0
                 },
                 {
                     "day_ahead": 26,
                     "date": "2025-11-25",
-                    "predicted_price": 2723.37,
-                    "lower_bound_95": 2056.9,
-                    "upper_bound_95": 3383.52,
-                    "predicted_pct_change": 1.42
+                    "predicted_price": 2755.67,
+                    "lower_bound_95": 2088.37,
+                    "upper_bound_95": 3429.29,
+                    "predicted_pct_change": 2.62
                 },
                 {
                     "day_ahead": 27,
                     "date": "2025-11-26",
-                    "predicted_price": 2707.55,
-                    "lower_bound_95": 2072.29,
-                    "upper_bound_95": 3389.85,
-                    "predicted_pct_change": 0.83
+                    "predicted_price": 2695.89,
+                    "lower_bound_95": 2039.08,
+                    "upper_bound_95": 3401.23,
+                    "predicted_pct_change": 0.39
                 },
                 {
                     "day_ahead": 28,
                     "date": "2025-11-27",
-                    "predicted_price": 2708.74,
-                    "lower_bound_95": 2037.73,
-                    "upper_bound_95": 3278.8,
-                    "predicted_pct_change": 0.87
+                    "predicted_price": 2706.72,
+                    "lower_bound_95": 2038.22,
+                    "upper_bound_95": 3288.83,
+                    "predicted_pct_change": 0.8
                 },
                 {
                     "day_ahead": 29,
                     "date": "2025-11-28",
-                    "predicted_price": 2707.75,
-                    "lower_bound_95": 2053.79,
-                    "upper_bound_95": 3398.72,
-                    "predicted_pct_change": 0.84
+                    "predicted_price": 2697.23,
+                    "lower_bound_95": 2023.62,
+                    "upper_bound_95": 3394.51,
+                    "predicted_pct_change": 0.44
                 },
                 {
                     "day_ahead": 30,
                     "date": "2025-11-29",
-                    "predicted_price": 2735.69,
-                    "lower_bound_95": 2106.69,
-                    "upper_bound_95": 3376.08,
-                    "predicted_pct_change": 1.88
+                    "predicted_price": 2693.35,
+                    "lower_bound_95": 2033.79,
+                    "upper_bound_95": 3362.95,
+                    "predicted_pct_change": 0.3
                 }
             ],
             "top_price_drivers": [
                 {
                     "feature": "arrivals_lag_7",
                     "impact": "Lower",
-                    "strength": "0.4000000059604645%"
+                    "strength": "0.800000011920929%"
                 },
                 {
-                    "feature": "price_norm_trailing",
+                    "feature": "price_lag_14",
                     "impact": "Higher",
+                    "strength": "0.800000011920929%"
+                },
+                {
+                    "feature": "price_lag_30",
+                    "impact": "Lower",
                     "strength": "0.20000000298023224%"
                 },
                 {
-                    "feature": "price_volatility_7",
+                    "feature": "month_cos",
                     "impact": "Lower",
-                    "strength": "0.10000000149011612%"
-                },
-                {
-                    "feature": "price_rolling_mean_14",
-                    "impact": "Higher",
-                    "strength": "0.10000000149011612%"
+                    "strength": "0.20000000298023224%"
                 }
             ]
         },
@@ -813,264 +813,264 @@
                 {
                     "day_ahead": 1,
                     "date": "2025-10-31",
-                    "predicted_price": 1328.19,
-                    "lower_bound_95": 1323.99,
-                    "upper_bound_95": 1332.39,
-                    "predicted_pct_change": 0.33
+                    "predicted_price": 1328.66,
+                    "lower_bound_95": 1089.51,
+                    "upper_bound_95": 1615.18,
+                    "predicted_pct_change": 0.36
                 },
                 {
                     "day_ahead": 2,
                     "date": "2025-11-01",
-                    "predicted_price": 1333.64,
-                    "lower_bound_95": 1328.26,
-                    "upper_bound_95": 1339.02,
-                    "predicted_pct_change": 0.74
+                    "predicted_price": 1335.2,
+                    "lower_bound_95": 1060.17,
+                    "upper_bound_95": 1689.27,
+                    "predicted_pct_change": 0.86
                 },
                 {
                     "day_ahead": 3,
                     "date": "2025-11-02",
-                    "predicted_price": 1343.58,
-                    "lower_bound_95": 1339.02,
-                    "upper_bound_95": 1348.15,
-                    "predicted_pct_change": 1.49
+                    "predicted_price": 1346.87,
+                    "lower_bound_95": 1026.68,
+                    "upper_bound_95": 1757.62,
+                    "predicted_pct_change": 1.74
                 },
                 {
                     "day_ahead": 4,
                     "date": "2025-11-03",
-                    "predicted_price": 1347.51,
-                    "lower_bound_95": 1337.36,
-                    "upper_bound_95": 1357.66,
-                    "predicted_pct_change": 1.79
+                    "predicted_price": 1350.98,
+                    "lower_bound_95": 974.07,
+                    "upper_bound_95": 1840.57,
+                    "predicted_pct_change": 2.05
                 },
                 {
                     "day_ahead": 5,
                     "date": "2025-11-04",
-                    "predicted_price": 1347.81,
-                    "lower_bound_95": 1338.09,
-                    "upper_bound_95": 1357.53,
-                    "predicted_pct_change": 1.81
+                    "predicted_price": 1354.81,
+                    "lower_bound_95": 929.9,
+                    "upper_bound_95": 1934.46,
+                    "predicted_pct_change": 2.34
                 },
                 {
                     "day_ahead": 6,
                     "date": "2025-11-05",
-                    "predicted_price": 1376.08,
-                    "lower_bound_95": 1373.04,
-                    "upper_bound_95": 1379.13,
-                    "predicted_pct_change": 3.94
+                    "predicted_price": 1378.0,
+                    "lower_bound_95": 943.22,
+                    "upper_bound_95": 2055.4,
+                    "predicted_pct_change": 4.09
                 },
                 {
                     "day_ahead": 7,
                     "date": "2025-11-06",
-                    "predicted_price": 1381.48,
-                    "lower_bound_95": 1369.53,
-                    "upper_bound_95": 1393.42,
-                    "predicted_pct_change": 4.35
+                    "predicted_price": 1378.79,
+                    "lower_bound_95": 912.42,
+                    "upper_bound_95": 2081.16,
+                    "predicted_pct_change": 4.15
                 },
                 {
                     "day_ahead": 8,
                     "date": "2025-11-07",
-                    "predicted_price": 1398.82,
-                    "lower_bound_95": 1387.03,
-                    "upper_bound_95": 1410.62,
-                    "predicted_pct_change": 5.66
+                    "predicted_price": 1375.14,
+                    "lower_bound_95": 876.07,
+                    "upper_bound_95": 2131.71,
+                    "predicted_pct_change": 3.87
                 },
                 {
                     "day_ahead": 9,
                     "date": "2025-11-08",
-                    "predicted_price": 1396.71,
-                    "lower_bound_95": 1381.56,
-                    "upper_bound_95": 1411.86,
-                    "predicted_pct_change": 5.5
+                    "predicted_price": 1388.94,
+                    "lower_bound_95": 879.64,
+                    "upper_bound_95": 2274.03,
+                    "predicted_pct_change": 4.91
                 },
                 {
                     "day_ahead": 10,
                     "date": "2025-11-09",
-                    "predicted_price": 1408.12,
-                    "lower_bound_95": 1389.52,
-                    "upper_bound_95": 1426.72,
-                    "predicted_pct_change": 6.36
+                    "predicted_price": 1425.75,
+                    "lower_bound_95": 887.63,
+                    "upper_bound_95": 2338.73,
+                    "predicted_pct_change": 7.7
                 },
                 {
                     "day_ahead": 11,
                     "date": "2025-11-10",
-                    "predicted_price": 1426.09,
-                    "lower_bound_95": 1407.71,
-                    "upper_bound_95": 1444.47,
-                    "predicted_pct_change": 7.72
+                    "predicted_price": 1407.67,
+                    "lower_bound_95": 852.56,
+                    "upper_bound_95": 2381.89,
+                    "predicted_pct_change": 6.33
                 },
                 {
                     "day_ahead": 12,
                     "date": "2025-11-11",
-                    "predicted_price": 1435.84,
-                    "lower_bound_95": 1413.76,
-                    "upper_bound_95": 1457.92,
-                    "predicted_pct_change": 8.46
+                    "predicted_price": 1402.97,
+                    "lower_bound_95": 833.51,
+                    "upper_bound_95": 2512.52,
+                    "predicted_pct_change": 5.98
                 },
                 {
                     "day_ahead": 13,
                     "date": "2025-11-12",
-                    "predicted_price": 1457.5,
-                    "lower_bound_95": 1438.54,
-                    "upper_bound_95": 1476.46,
-                    "predicted_pct_change": 10.09
+                    "predicted_price": 1429.69,
+                    "lower_bound_95": 843.01,
+                    "upper_bound_95": 2596.95,
+                    "predicted_pct_change": 7.99
                 },
                 {
                     "day_ahead": 14,
                     "date": "2025-11-13",
-                    "predicted_price": 1462.15,
-                    "lower_bound_95": 1434.51,
-                    "upper_bound_95": 1489.79,
-                    "predicted_pct_change": 10.45
+                    "predicted_price": 1433.93,
+                    "lower_bound_95": 808.64,
+                    "upper_bound_95": 2648.4,
+                    "predicted_pct_change": 8.31
                 },
                 {
                     "day_ahead": 15,
                     "date": "2025-11-14",
-                    "predicted_price": 1462.59,
-                    "lower_bound_95": 1429.22,
-                    "upper_bound_95": 1495.96,
-                    "predicted_pct_change": 10.48
+                    "predicted_price": 1433.89,
+                    "lower_bound_95": 781.61,
+                    "upper_bound_95": 2715.43,
+                    "predicted_pct_change": 8.31
                 },
                 {
                     "day_ahead": 16,
                     "date": "2025-11-15",
-                    "predicted_price": 1479.32,
-                    "lower_bound_95": 1439.24,
-                    "upper_bound_95": 1519.39,
-                    "predicted_pct_change": 11.74
+                    "predicted_price": 1455.95,
+                    "lower_bound_95": 803.96,
+                    "upper_bound_95": 2828.34,
+                    "predicted_pct_change": 9.98
                 },
                 {
                     "day_ahead": 17,
                     "date": "2025-11-16",
-                    "predicted_price": 1483.1,
-                    "lower_bound_95": 1437.14,
-                    "upper_bound_95": 1529.06,
-                    "predicted_pct_change": 12.03
+                    "predicted_price": 1458.37,
+                    "lower_bound_95": 767.11,
+                    "upper_bound_95": 2994.67,
+                    "predicted_pct_change": 10.16
                 },
                 {
                     "day_ahead": 18,
                     "date": "2025-11-17",
-                    "predicted_price": 1460.15,
-                    "lower_bound_95": 1402.06,
-                    "upper_bound_95": 1518.24,
-                    "predicted_pct_change": 10.29
+                    "predicted_price": 1454.43,
+                    "lower_bound_95": 750.7,
+                    "upper_bound_95": 3052.79,
+                    "predicted_pct_change": 9.86
                 },
                 {
                     "day_ahead": 19,
                     "date": "2025-11-18",
-                    "predicted_price": 1491.02,
-                    "lower_bound_95": 1432.4,
-                    "upper_bound_95": 1549.63,
-                    "predicted_pct_change": 12.63
+                    "predicted_price": 1466.91,
+                    "lower_bound_95": 730.08,
+                    "upper_bound_95": 3168.51,
+                    "predicted_pct_change": 10.8
                 },
                 {
                     "day_ahead": 20,
                     "date": "2025-11-19",
-                    "predicted_price": 1517.97,
-                    "lower_bound_95": 1455.85,
-                    "upper_bound_95": 1580.1,
-                    "predicted_pct_change": 14.66
+                    "predicted_price": 1481.67,
+                    "lower_bound_95": 749.38,
+                    "upper_bound_95": 3382.0,
+                    "predicted_pct_change": 11.92
                 },
                 {
                     "day_ahead": 21,
                     "date": "2025-11-20",
-                    "predicted_price": 1507.61,
-                    "lower_bound_95": 1443.2,
-                    "upper_bound_95": 1572.02,
-                    "predicted_pct_change": 13.88
+                    "predicted_price": 1535.53,
+                    "lower_bound_95": 778.5,
+                    "upper_bound_95": 3509.6,
+                    "predicted_pct_change": 15.99
                 },
                 {
                     "day_ahead": 22,
                     "date": "2025-11-21",
-                    "predicted_price": 1530.96,
-                    "lower_bound_95": 1461.09,
-                    "upper_bound_95": 1600.83,
-                    "predicted_pct_change": 15.64
+                    "predicted_price": 1493.18,
+                    "lower_bound_95": 706.02,
+                    "upper_bound_95": 3648.54,
+                    "predicted_pct_change": 12.79
                 },
                 {
                     "day_ahead": 23,
                     "date": "2025-11-22",
-                    "predicted_price": 1523.52,
-                    "lower_bound_95": 1451.63,
-                    "upper_bound_95": 1595.42,
-                    "predicted_pct_change": 15.08
+                    "predicted_price": 1517.82,
+                    "lower_bound_95": 728.6,
+                    "upper_bound_95": 3780.47,
+                    "predicted_pct_change": 14.65
                 },
                 {
                     "day_ahead": 24,
                     "date": "2025-11-23",
-                    "predicted_price": 1517.92,
-                    "lower_bound_95": 1432.44,
-                    "upper_bound_95": 1603.4,
-                    "predicted_pct_change": 14.66
+                    "predicted_price": 1539.38,
+                    "lower_bound_95": 733.55,
+                    "upper_bound_95": 3858.07,
+                    "predicted_pct_change": 16.28
                 },
                 {
                     "day_ahead": 25,
                     "date": "2025-11-24",
-                    "predicted_price": 1512.44,
-                    "lower_bound_95": 1426.24,
-                    "upper_bound_95": 1598.64,
-                    "predicted_pct_change": 14.24
+                    "predicted_price": 1536.78,
+                    "lower_bound_95": 723.22,
+                    "upper_bound_95": 3957.6,
+                    "predicted_pct_change": 16.08
                 },
                 {
                     "day_ahead": 26,
                     "date": "2025-11-25",
-                    "predicted_price": 1538.02,
-                    "lower_bound_95": 1430.01,
-                    "upper_bound_95": 1646.03,
-                    "predicted_pct_change": 16.18
+                    "predicted_price": 1524.62,
+                    "lower_bound_95": 677.72,
+                    "upper_bound_95": 4023.06,
+                    "predicted_pct_change": 15.16
                 },
                 {
                     "day_ahead": 27,
                     "date": "2025-11-26",
-                    "predicted_price": 1487.91,
-                    "lower_bound_95": 1345.32,
-                    "upper_bound_95": 1630.51,
-                    "predicted_pct_change": 12.39
+                    "predicted_price": 1598.2,
+                    "lower_bound_95": 758.07,
+                    "upper_bound_95": 4120.98,
+                    "predicted_pct_change": 20.72
                 },
                 {
                     "day_ahead": 28,
                     "date": "2025-11-27",
-                    "predicted_price": 1483.37,
-                    "lower_bound_95": 1303.39,
-                    "upper_bound_95": 1663.35,
-                    "predicted_pct_change": 12.05
+                    "predicted_price": 1604.04,
+                    "lower_bound_95": 769.32,
+                    "upper_bound_95": 4227.06,
+                    "predicted_pct_change": 21.16
                 },
                 {
                     "day_ahead": 29,
                     "date": "2025-11-28",
-                    "predicted_price": 1486.41,
-                    "lower_bound_95": 1286.55,
-                    "upper_bound_95": 1686.27,
-                    "predicted_pct_change": 12.28
+                    "predicted_price": 1550.13,
+                    "lower_bound_95": 689.52,
+                    "upper_bound_95": 4283.13,
+                    "predicted_pct_change": 17.09
                 },
                 {
                     "day_ahead": 30,
                     "date": "2025-11-29",
-                    "predicted_price": 1503.46,
-                    "lower_bound_95": 1285.78,
-                    "upper_bound_95": 1721.13,
-                    "predicted_pct_change": 13.57
+                    "predicted_price": 1676.9,
+                    "lower_bound_95": 808.11,
+                    "upper_bound_95": 4492.97,
+                    "predicted_pct_change": 26.67
                 }
             ],
             "top_price_drivers": [
                 {
-                    "feature": "min_price",
+                    "feature": "price_rolling_mean_30",
                     "impact": "Higher",
-                    "strength": "0.20000000298023224%"
+                    "strength": "1.2000000476837158%"
                 },
                 {
-                    "feature": "modal_price",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
-                },
-                {
-                    "feature": "rsi_14",
+                    "feature": "seasonal_price_index",
                     "impact": "Higher",
-                    "strength": "0.10000000149011612%"
+                    "strength": "0.8999999761581421%"
                 },
                 {
-                    "feature": "max_price",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
+                    "feature": "price_lag_14",
+                    "impact": "Higher",
+                    "strength": "0.8999999761581421%"
+                },
+                {
+                    "feature": "month_cos",
+                    "impact": "Higher",
+                    "strength": "0.800000011920929%"
                 }
             ]
         },
@@ -1081,264 +1081,264 @@
                 {
                     "day_ahead": 1,
                     "date": "2025-10-31",
-                    "predicted_price": 1673.05,
-                    "lower_bound_95": 1669.94,
-                    "upper_bound_95": 1676.15,
-                    "predicted_pct_change": 0.13
+                    "predicted_price": 1676.57,
+                    "lower_bound_95": 1374.74,
+                    "upper_bound_95": 2038.16,
+                    "predicted_pct_change": 0.35
                 },
                 {
                     "day_ahead": 2,
                     "date": "2025-11-01",
-                    "predicted_price": 1675.81,
-                    "lower_bound_95": 1674.34,
-                    "upper_bound_95": 1677.28,
-                    "predicted_pct_change": 0.3
+                    "predicted_price": 1679.12,
+                    "lower_bound_95": 1332.01,
+                    "upper_bound_95": 2125.97,
+                    "predicted_pct_change": 0.5
                 },
                 {
                     "day_ahead": 3,
                     "date": "2025-11-02",
-                    "predicted_price": 1681.88,
-                    "lower_bound_95": 1676.39,
-                    "upper_bound_95": 1687.38,
-                    "predicted_pct_change": 0.66
+                    "predicted_price": 1689.77,
+                    "lower_bound_95": 1285.68,
+                    "upper_bound_95": 2208.17,
+                    "predicted_pct_change": 1.14
                 },
                 {
                     "day_ahead": 4,
                     "date": "2025-11-03",
-                    "predicted_price": 1685.65,
-                    "lower_bound_95": 1680.05,
-                    "upper_bound_95": 1691.25,
-                    "predicted_pct_change": 0.89
+                    "predicted_price": 1687.61,
+                    "lower_bound_95": 1211.92,
+                    "upper_bound_95": 2305.5,
+                    "predicted_pct_change": 1.01
                 },
                 {
                     "day_ahead": 5,
                     "date": "2025-11-04",
-                    "predicted_price": 1681.5,
-                    "lower_bound_95": 1676.14,
-                    "upper_bound_95": 1686.86,
-                    "predicted_pct_change": 0.64
+                    "predicted_price": 1692.41,
+                    "lower_bound_95": 1156.14,
+                    "upper_bound_95": 2423.96,
+                    "predicted_pct_change": 1.29
                 },
                 {
                     "day_ahead": 6,
                     "date": "2025-11-05",
-                    "predicted_price": 1705.54,
-                    "lower_bound_95": 1680.61,
-                    "upper_bound_95": 1730.47,
-                    "predicted_pct_change": 2.08
+                    "predicted_price": 1699.19,
+                    "lower_bound_95": 1150.47,
+                    "upper_bound_95": 2554.1,
+                    "predicted_pct_change": 1.7
                 },
                 {
                     "day_ahead": 7,
                     "date": "2025-11-06",
-                    "predicted_price": 1700.8,
-                    "lower_bound_95": 1687.43,
-                    "upper_bound_95": 1714.16,
-                    "predicted_pct_change": 1.8
+                    "predicted_price": 1696.19,
+                    "lower_bound_95": 1107.6,
+                    "upper_bound_95": 2582.62,
+                    "predicted_pct_change": 1.52
                 },
                 {
                     "day_ahead": 8,
                     "date": "2025-11-07",
-                    "predicted_price": 1704.08,
-                    "lower_bound_95": 1685.98,
-                    "upper_bound_95": 1722.17,
-                    "predicted_pct_change": 1.99
+                    "predicted_price": 1704.5,
+                    "lower_bound_95": 1074.65,
+                    "upper_bound_95": 2659.33,
+                    "predicted_pct_change": 2.02
                 },
                 {
                     "day_ahead": 9,
                     "date": "2025-11-08",
-                    "predicted_price": 1706.31,
-                    "lower_bound_95": 1684.2,
-                    "upper_bound_95": 1728.42,
-                    "predicted_pct_change": 2.13
+                    "predicted_price": 1704.46,
+                    "lower_bound_95": 1061.7,
+                    "upper_bound_95": 2821.49,
+                    "predicted_pct_change": 2.01
                 },
                 {
                     "day_ahead": 10,
                     "date": "2025-11-09",
-                    "predicted_price": 1722.68,
-                    "lower_bound_95": 1705.66,
-                    "upper_bound_95": 1739.69,
-                    "predicted_pct_change": 3.1
+                    "predicted_price": 1715.14,
+                    "lower_bound_95": 1035.99,
+                    "upper_bound_95": 2867.37,
+                    "predicted_pct_change": 2.65
                 },
                 {
                     "day_ahead": 11,
                     "date": "2025-11-10",
-                    "predicted_price": 1715.32,
-                    "lower_bound_95": 1697.74,
-                    "upper_bound_95": 1732.9,
-                    "predicted_pct_change": 2.66
+                    "predicted_price": 1708.9,
+                    "lower_bound_95": 1008.32,
+                    "upper_bound_95": 2938.41,
+                    "predicted_pct_change": 2.28
                 },
                 {
                     "day_ahead": 12,
                     "date": "2025-11-11",
-                    "predicted_price": 1724.32,
-                    "lower_bound_95": 1703.2,
-                    "upper_bound_95": 1745.44,
-                    "predicted_pct_change": 3.2
+                    "predicted_price": 1704.74,
+                    "lower_bound_95": 986.05,
+                    "upper_bound_95": 3105.06,
+                    "predicted_pct_change": 2.03
                 },
                 {
                     "day_ahead": 13,
                     "date": "2025-11-12",
-                    "predicted_price": 1723.9,
-                    "lower_bound_95": 1703.35,
-                    "upper_bound_95": 1744.45,
-                    "predicted_pct_change": 3.18
+                    "predicted_price": 1721.6,
+                    "lower_bound_95": 981.18,
+                    "upper_bound_95": 3194.76,
+                    "predicted_pct_change": 3.04
                 },
                 {
                     "day_ahead": 14,
                     "date": "2025-11-13",
-                    "predicted_price": 1732.32,
-                    "lower_bound_95": 1697.14,
-                    "upper_bound_95": 1767.49,
-                    "predicted_pct_change": 3.68
+                    "predicted_price": 1725.09,
+                    "lower_bound_95": 935.93,
+                    "upper_bound_95": 3257.82,
+                    "predicted_pct_change": 3.25
                 },
                 {
                     "day_ahead": 15,
                     "date": "2025-11-14",
-                    "predicted_price": 1727.13,
-                    "lower_bound_95": 1689.33,
-                    "upper_bound_95": 1764.93,
-                    "predicted_pct_change": 3.37
+                    "predicted_price": 1719.77,
+                    "lower_bound_95": 896.57,
+                    "upper_bound_95": 3337.16,
+                    "predicted_pct_change": 2.93
                 },
                 {
                     "day_ahead": 16,
                     "date": "2025-11-15",
-                    "predicted_price": 1725.7,
-                    "lower_bound_95": 1688.65,
-                    "upper_bound_95": 1762.75,
-                    "predicted_pct_change": 3.29
+                    "predicted_price": 1718.92,
+                    "lower_bound_95": 896.07,
+                    "upper_bound_95": 3450.95,
+                    "predicted_pct_change": 2.88
                 },
                 {
                     "day_ahead": 17,
                     "date": "2025-11-16",
-                    "predicted_price": 1725.02,
-                    "lower_bound_95": 1685.09,
-                    "upper_bound_95": 1764.95,
-                    "predicted_pct_change": 3.25
+                    "predicted_price": 1730.07,
+                    "lower_bound_95": 857.66,
+                    "upper_bound_95": 3668.97,
+                    "predicted_pct_change": 3.55
                 },
                 {
                     "day_ahead": 18,
                     "date": "2025-11-17",
-                    "predicted_price": 1731.13,
-                    "lower_bound_95": 1697.03,
-                    "upper_bound_95": 1765.24,
-                    "predicted_pct_change": 3.61
+                    "predicted_price": 1731.84,
+                    "lower_bound_95": 843.69,
+                    "upper_bound_95": 3749.07,
+                    "predicted_pct_change": 3.65
                 },
                 {
                     "day_ahead": 19,
                     "date": "2025-11-18",
-                    "predicted_price": 1736.61,
-                    "lower_bound_95": 1695.86,
-                    "upper_bound_95": 1777.37,
-                    "predicted_pct_change": 3.94
+                    "predicted_price": 1745.72,
+                    "lower_bound_95": 815.79,
+                    "upper_bound_95": 3893.24,
+                    "predicted_pct_change": 4.48
                 },
                 {
                     "day_ahead": 20,
                     "date": "2025-11-19",
-                    "predicted_price": 1743.01,
-                    "lower_bound_95": 1684.77,
-                    "upper_bound_95": 1801.24,
-                    "predicted_pct_change": 4.32
+                    "predicted_price": 1741.1,
+                    "lower_bound_95": 816.91,
+                    "upper_bound_95": 4139.43,
+                    "predicted_pct_change": 4.21
                 },
                 {
                     "day_ahead": 21,
                     "date": "2025-11-20",
-                    "predicted_price": 1732.05,
-                    "lower_bound_95": 1680.98,
-                    "upper_bound_95": 1783.12,
-                    "predicted_pct_change": 3.67
+                    "predicted_price": 1764.53,
+                    "lower_bound_95": 809.12,
+                    "upper_bound_95": 4255.92,
+                    "predicted_pct_change": 5.61
                 },
                 {
                     "day_ahead": 22,
                     "date": "2025-11-21",
-                    "predicted_price": 1753.4,
-                    "lower_bound_95": 1711.91,
-                    "upper_bound_95": 1794.9,
-                    "predicted_pct_change": 4.94
+                    "predicted_price": 1745.0,
+                    "lower_bound_95": 751.56,
+                    "upper_bound_95": 4465.19,
+                    "predicted_pct_change": 4.44
                 },
                 {
                     "day_ahead": 23,
                     "date": "2025-11-22",
-                    "predicted_price": 1744.92,
-                    "lower_bound_95": 1693.86,
-                    "upper_bound_95": 1795.99,
-                    "predicted_pct_change": 4.44
+                    "predicted_price": 1752.2,
+                    "lower_bound_95": 756.16,
+                    "upper_bound_95": 4607.79,
+                    "predicted_pct_change": 4.87
                 },
                 {
                     "day_ahead": 24,
                     "date": "2025-11-23",
-                    "predicted_price": 1738.2,
-                    "lower_bound_95": 1681.3,
-                    "upper_bound_95": 1795.09,
-                    "predicted_pct_change": 4.03
+                    "predicted_price": 1752.29,
+                    "lower_bound_95": 735.28,
+                    "upper_bound_95": 4678.61,
+                    "predicted_pct_change": 4.88
                 },
                 {
                     "day_ahead": 25,
                     "date": "2025-11-24",
-                    "predicted_price": 1723.0,
-                    "lower_bound_95": 1668.57,
-                    "upper_bound_95": 1777.43,
-                    "predicted_pct_change": 3.12
+                    "predicted_price": 1755.42,
+                    "lower_bound_95": 728.66,
+                    "upper_bound_95": 4810.64,
+                    "predicted_pct_change": 5.06
                 },
                 {
                     "day_ahead": 26,
                     "date": "2025-11-25",
-                    "predicted_price": 1732.86,
-                    "lower_bound_95": 1665.63,
-                    "upper_bound_95": 1800.1,
-                    "predicted_pct_change": 3.71
+                    "predicted_price": 1753.13,
+                    "lower_bound_95": 684.3,
+                    "upper_bound_95": 4906.31,
+                    "predicted_pct_change": 4.93
                 },
                 {
                     "day_ahead": 27,
                     "date": "2025-11-26",
-                    "predicted_price": 1716.83,
-                    "lower_bound_95": 1638.87,
-                    "upper_bound_95": 1794.78,
-                    "predicted_pct_change": 2.75
+                    "predicted_price": 1751.75,
+                    "lower_bound_95": 691.47,
+                    "upper_bound_95": 4935.65,
+                    "predicted_pct_change": 4.84
                 },
                 {
                     "day_ahead": 28,
                     "date": "2025-11-27",
-                    "predicted_price": 1701.3,
-                    "lower_bound_95": 1593.34,
-                    "upper_bound_95": 1809.26,
-                    "predicted_pct_change": 1.83
+                    "predicted_price": 1751.29,
+                    "lower_bound_95": 697.83,
+                    "upper_bound_95": 5061.69,
+                    "predicted_pct_change": 4.82
                 },
                 {
                     "day_ahead": 29,
                     "date": "2025-11-28",
-                    "predicted_price": 1679.54,
-                    "lower_bound_95": 1591.41,
-                    "upper_bound_95": 1767.67,
-                    "predicted_pct_change": 0.52
+                    "predicted_price": 1766.77,
+                    "lower_bound_95": 680.62,
+                    "upper_bound_95": 5215.96,
+                    "predicted_pct_change": 5.74
                 },
                 {
                     "day_ahead": 30,
                     "date": "2025-11-29",
-                    "predicted_price": 1696.12,
-                    "lower_bound_95": 1618.98,
-                    "upper_bound_95": 1773.26,
-                    "predicted_pct_change": 1.52
+                    "predicted_price": 1760.78,
+                    "lower_bound_95": 664.33,
+                    "upper_bound_95": 5314.84,
+                    "predicted_pct_change": 5.39
                 }
             ],
             "top_price_drivers": [
                 {
-                    "feature": "min_price",
-                    "impact": "Lower",
-                    "strength": "0.30000001192092896%"
+                    "feature": "month_cos",
+                    "impact": "Higher",
+                    "strength": "0.699999988079071%"
                 },
                 {
-                    "feature": "modal_price",
+                    "feature": "rainfall_7d",
+                    "impact": "Higher",
+                    "strength": "0.6000000238418579%"
+                },
+                {
+                    "feature": "fuel_cost_pressure",
                     "impact": "Lower",
-                    "strength": "0.30000001192092896%"
+                    "strength": "0.5%"
                 },
                 {
                     "feature": "rsi_14",
                     "impact": "Higher",
-                    "strength": "0.20000000298023224%"
-                },
-                {
-                    "feature": "max_price",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
+                    "strength": "0.5%"
                 }
             ]
         },
@@ -1349,264 +1349,264 @@
                 {
                     "day_ahead": 1,
                     "date": "2025-10-31",
-                    "predicted_price": 1354.71,
-                    "lower_bound_95": 1347.34,
-                    "upper_bound_95": 1362.09,
-                    "predicted_pct_change": -0.29
+                    "predicted_price": 1362.22,
+                    "lower_bound_95": 1116.79,
+                    "upper_bound_95": 1656.25,
+                    "predicted_pct_change": 0.27
                 },
                 {
                     "day_ahead": 2,
                     "date": "2025-11-01",
-                    "predicted_price": 1356.85,
-                    "lower_bound_95": 1349.62,
-                    "upper_bound_95": 1364.09,
-                    "predicted_pct_change": -0.13
+                    "predicted_price": 1363.78,
+                    "lower_bound_95": 1081.53,
+                    "upper_bound_95": 1727.14,
+                    "predicted_pct_change": 0.38
                 },
                 {
                     "day_ahead": 3,
                     "date": "2025-11-02",
-                    "predicted_price": 1358.14,
-                    "lower_bound_95": 1347.66,
-                    "upper_bound_95": 1368.62,
-                    "predicted_pct_change": -0.03
+                    "predicted_price": 1364.76,
+                    "lower_bound_95": 1036.17,
+                    "upper_bound_95": 1786.3,
+                    "predicted_pct_change": 0.45
                 },
                 {
                     "day_ahead": 4,
                     "date": "2025-11-03",
-                    "predicted_price": 1351.65,
-                    "lower_bound_95": 1330.83,
-                    "upper_bound_95": 1372.47,
-                    "predicted_pct_change": -0.51
+                    "predicted_price": 1366.44,
+                    "lower_bound_95": 979.63,
+                    "upper_bound_95": 1868.88,
+                    "predicted_pct_change": 0.58
                 },
                 {
                     "day_ahead": 5,
                     "date": "2025-11-04",
-                    "predicted_price": 1352.72,
-                    "lower_bound_95": 1332.61,
-                    "upper_bound_95": 1372.83,
-                    "predicted_pct_change": -0.43
+                    "predicted_price": 1372.01,
+                    "lower_bound_95": 935.94,
+                    "upper_bound_95": 1966.87,
+                    "predicted_pct_change": 0.99
                 },
                 {
                     "day_ahead": 6,
                     "date": "2025-11-05",
-                    "predicted_price": 1341.02,
-                    "lower_bound_95": 1316.87,
-                    "upper_bound_95": 1365.16,
-                    "predicted_pct_change": -1.3
+                    "predicted_price": 1365.77,
+                    "lower_bound_95": 919.58,
+                    "upper_bound_95": 2060.94,
+                    "predicted_pct_change": 0.53
                 },
                 {
                     "day_ahead": 7,
                     "date": "2025-11-06",
-                    "predicted_price": 1348.81,
-                    "lower_bound_95": 1319.0,
-                    "upper_bound_95": 1378.62,
-                    "predicted_pct_change": -0.72
+                    "predicted_price": 1368.17,
+                    "lower_bound_95": 889.56,
+                    "upper_bound_95": 2088.97,
+                    "predicted_pct_change": 0.7
                 },
                 {
                     "day_ahead": 8,
                     "date": "2025-11-07",
-                    "predicted_price": 1348.6,
-                    "lower_bound_95": 1313.12,
-                    "upper_bound_95": 1384.08,
-                    "predicted_pct_change": -0.74
+                    "predicted_price": 1367.8,
+                    "lower_bound_95": 855.64,
+                    "upper_bound_95": 2144.22,
+                    "predicted_pct_change": 0.68
                 },
                 {
                     "day_ahead": 9,
                     "date": "2025-11-08",
-                    "predicted_price": 1346.97,
-                    "lower_bound_95": 1308.25,
-                    "upper_bound_95": 1385.68,
-                    "predicted_pct_change": -0.86
+                    "predicted_price": 1376.33,
+                    "lower_bound_95": 853.67,
+                    "upper_bound_95": 2284.65,
+                    "predicted_pct_change": 1.3
                 },
                 {
                     "day_ahead": 10,
                     "date": "2025-11-09",
-                    "predicted_price": 1326.96,
-                    "lower_bound_95": 1283.76,
-                    "upper_bound_95": 1370.15,
-                    "predicted_pct_change": -2.33
+                    "predicted_price": 1377.67,
+                    "lower_bound_95": 825.42,
+                    "upper_bound_95": 2314.61,
+                    "predicted_pct_change": 1.4
                 },
                 {
                     "day_ahead": 11,
                     "date": "2025-11-10",
-                    "predicted_price": 1355.73,
-                    "lower_bound_95": 1317.41,
-                    "upper_bound_95": 1394.06,
-                    "predicted_pct_change": -0.21
+                    "predicted_price": 1385.11,
+                    "lower_bound_95": 815.44,
+                    "upper_bound_95": 2384.89,
+                    "predicted_pct_change": 1.95
                 },
                 {
                     "day_ahead": 12,
                     "date": "2025-11-11",
-                    "predicted_price": 1355.79,
-                    "lower_bound_95": 1311.88,
-                    "upper_bound_95": 1399.69,
-                    "predicted_pct_change": -0.21
+                    "predicted_price": 1389.74,
+                    "lower_bound_95": 805.33,
+                    "upper_bound_95": 2528.4,
+                    "predicted_pct_change": 2.29
                 },
                 {
                     "day_ahead": 13,
                     "date": "2025-11-12",
-                    "predicted_price": 1365.87,
-                    "lower_bound_95": 1320.73,
-                    "upper_bound_95": 1411.01,
-                    "predicted_pct_change": 0.53
+                    "predicted_price": 1391.93,
+                    "lower_bound_95": 789.86,
+                    "upper_bound_95": 2589.83,
+                    "predicted_pct_change": 2.45
                 },
                 {
                     "day_ahead": 14,
                     "date": "2025-11-13",
-                    "predicted_price": 1364.36,
-                    "lower_bound_95": 1325.7,
-                    "upper_bound_95": 1403.02,
-                    "predicted_pct_change": 0.42
+                    "predicted_price": 1399.59,
+                    "lower_bound_95": 757.89,
+                    "upper_bound_95": 2645.93,
+                    "predicted_pct_change": 3.02
                 },
                 {
                     "day_ahead": 15,
                     "date": "2025-11-14",
-                    "predicted_price": 1370.87,
-                    "lower_bound_95": 1323.28,
-                    "upper_bound_95": 1418.45,
-                    "predicted_pct_change": 0.9
+                    "predicted_price": 1404.09,
+                    "lower_bound_95": 734.69,
+                    "upper_bound_95": 2719.26,
+                    "predicted_pct_change": 3.35
                 },
                 {
                     "day_ahead": 16,
                     "date": "2025-11-15",
-                    "predicted_price": 1365.0,
-                    "lower_bound_95": 1311.88,
-                    "upper_bound_95": 1418.13,
-                    "predicted_pct_change": 0.47
+                    "predicted_price": 1424.58,
+                    "lower_bound_95": 755.48,
+                    "upper_bound_95": 2832.98,
+                    "predicted_pct_change": 4.86
                 },
                 {
                     "day_ahead": 17,
                     "date": "2025-11-16",
-                    "predicted_price": 1382.29,
-                    "lower_bound_95": 1333.09,
-                    "upper_bound_95": 1431.5,
-                    "predicted_pct_change": 1.74
+                    "predicted_price": 1414.97,
+                    "lower_bound_95": 705.57,
+                    "upper_bound_95": 2991.58,
+                    "predicted_pct_change": 4.15
                 },
                 {
                     "day_ahead": 18,
                     "date": "2025-11-17",
-                    "predicted_price": 1398.91,
-                    "lower_bound_95": 1348.34,
-                    "upper_bound_95": 1449.48,
-                    "predicted_pct_change": 2.97
+                    "predicted_price": 1434.32,
+                    "lower_bound_95": 712.12,
+                    "upper_bound_95": 3074.63,
+                    "predicted_pct_change": 5.57
                 },
                 {
                     "day_ahead": 19,
                     "date": "2025-11-18",
-                    "predicted_price": 1391.08,
-                    "lower_bound_95": 1329.93,
-                    "upper_bound_95": 1452.24,
-                    "predicted_pct_change": 2.39
+                    "predicted_price": 1418.99,
+                    "lower_bound_95": 662.83,
+                    "upper_bound_95": 3165.25,
+                    "predicted_pct_change": 4.44
                 },
                 {
                     "day_ahead": 20,
                     "date": "2025-11-19",
-                    "predicted_price": 1398.01,
-                    "lower_bound_95": 1333.35,
-                    "upper_bound_95": 1462.66,
-                    "predicted_pct_change": 2.9
+                    "predicted_price": 1429.22,
+                    "lower_bound_95": 677.71,
+                    "upper_bound_95": 3379.42,
+                    "predicted_pct_change": 5.2
                 },
                 {
                     "day_ahead": 21,
                     "date": "2025-11-20",
-                    "predicted_price": 1393.85,
-                    "lower_bound_95": 1331.09,
-                    "upper_bound_95": 1456.61,
-                    "predicted_pct_change": 2.59
+                    "predicted_price": 1448.62,
+                    "lower_bound_95": 671.73,
+                    "upper_bound_95": 3474.49,
+                    "predicted_pct_change": 6.63
                 },
                 {
                     "day_ahead": 22,
                     "date": "2025-11-21",
-                    "predicted_price": 1379.86,
-                    "lower_bound_95": 1297.29,
-                    "upper_bound_95": 1462.43,
-                    "predicted_pct_change": 1.56
+                    "predicted_price": 1417.89,
+                    "lower_bound_95": 610.07,
+                    "upper_bound_95": 3629.81,
+                    "predicted_pct_change": 4.36
                 },
                 {
                     "day_ahead": 23,
                     "date": "2025-11-22",
-                    "predicted_price": 1397.82,
-                    "lower_bound_95": 1306.18,
-                    "upper_bound_95": 1489.46,
-                    "predicted_pct_change": 2.89
+                    "predicted_price": 1428.43,
+                    "lower_bound_95": 618.5,
+                    "upper_bound_95": 3750.45,
+                    "predicted_pct_change": 5.14
                 },
                 {
                     "day_ahead": 24,
                     "date": "2025-11-23",
-                    "predicted_price": 1390.06,
-                    "lower_bound_95": 1298.99,
-                    "upper_bound_95": 1481.13,
-                    "predicted_pct_change": 2.31
+                    "predicted_price": 1391.07,
+                    "lower_bound_95": 564.08,
+                    "upper_bound_95": 3770.6,
+                    "predicted_pct_change": 2.39
                 },
                 {
                     "day_ahead": 25,
                     "date": "2025-11-24",
-                    "predicted_price": 1391.34,
-                    "lower_bound_95": 1308.86,
-                    "upper_bound_95": 1473.83,
-                    "predicted_pct_change": 2.41
+                    "predicted_price": 1415.84,
+                    "lower_bound_95": 580.92,
+                    "upper_bound_95": 3900.18,
+                    "predicted_pct_change": 4.21
                 },
                 {
                     "day_ahead": 26,
                     "date": "2025-11-25",
-                    "predicted_price": 1433.39,
-                    "lower_bound_95": 1348.95,
-                    "upper_bound_95": 1517.83,
-                    "predicted_pct_change": 5.5
+                    "predicted_price": 1436.02,
+                    "lower_bound_95": 566.9,
+                    "upper_bound_95": 4000.02,
+                    "predicted_pct_change": 5.7
                 },
                 {
                     "day_ahead": 27,
                     "date": "2025-11-26",
-                    "predicted_price": 1440.83,
-                    "lower_bound_95": 1342.38,
-                    "upper_bound_95": 1539.29,
-                    "predicted_pct_change": 6.05
+                    "predicted_price": 1457.26,
+                    "lower_bound_95": 595.09,
+                    "upper_bound_95": 4046.24,
+                    "predicted_pct_change": 7.26
                 },
                 {
                     "day_ahead": 28,
                     "date": "2025-11-27",
-                    "predicted_price": 1492.27,
-                    "lower_bound_95": 1406.48,
-                    "upper_bound_95": 1578.05,
-                    "predicted_pct_change": 9.84
+                    "predicted_price": 1436.26,
+                    "lower_bound_95": 579.64,
+                    "upper_bound_95": 4128.11,
+                    "predicted_pct_change": 5.72
                 },
                 {
                     "day_ahead": 29,
                     "date": "2025-11-28",
-                    "predicted_price": 1433.71,
-                    "lower_bound_95": 1317.73,
-                    "upper_bound_95": 1549.69,
-                    "predicted_pct_change": 5.53
+                    "predicted_price": 1426.01,
+                    "lower_bound_95": 542.81,
+                    "upper_bound_95": 4230.72,
+                    "predicted_pct_change": 4.96
                 },
                 {
                     "day_ahead": 30,
                     "date": "2025-11-29",
-                    "predicted_price": 1417.09,
-                    "lower_bound_95": 1267.68,
-                    "upper_bound_95": 1566.5,
-                    "predicted_pct_change": 4.3
+                    "predicted_price": 1443.35,
+                    "lower_bound_95": 551.77,
+                    "upper_bound_95": 4333.32,
+                    "predicted_pct_change": 6.24
                 }
             ],
             "top_price_drivers": [
                 {
-                    "feature": "min_price",
-                    "impact": "Lower",
-                    "strength": "0.20000000298023224%"
+                    "feature": "seasonal_price_index",
+                    "impact": "Higher",
+                    "strength": "0.699999988079071%"
                 },
                 {
-                    "feature": "rsi_14",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
+                    "feature": "month_cos",
+                    "impact": "Higher",
+                    "strength": "0.6000000238418579%"
                 },
                 {
-                    "feature": "modal_price",
+                    "feature": "fuel_cost_pressure",
                     "impact": "Lower",
-                    "strength": "0.10000000149011612%"
+                    "strength": "0.6000000238418579%"
                 },
                 {
-                    "feature": "max_price",
-                    "impact": "Lower",
-                    "strength": "0.10000000149011612%"
+                    "feature": "rainfall_7d",
+                    "impact": "Higher",
+                    "strength": "0.4000000059604645%"
                 }
             ]
         }

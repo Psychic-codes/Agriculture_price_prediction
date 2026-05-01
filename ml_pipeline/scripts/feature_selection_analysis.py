@@ -16,16 +16,18 @@ Run from project root:
   python ml_pipeline/scripts/feature_selection_analysis.py
 """
 
-import pandas as pd
-import numpy as np
-import joblib
 import warnings
+
+import joblib
+import numpy as np
+import pandas as pd
+
 warnings.filterwarnings('ignore')
 
 # ── Configuration ────────────────────────────────────────────────────────────
-CORR_THRESHOLD    = 0.88   # flag pairs more correlated than this as redundant
-TOP_N_KEEP        = 25     # maximum features to keep per pipeline
-IMPORTANCE_ALPHA  = 0.005  # drop features with RF importance < this threshold
+CORR_THRESHOLD = 0.88   # flag pairs more correlated than this as redundant
+TOP_N_KEEP = 25     # maximum features to keep per pipeline
+IMPORTANCE_ALPHA = 0.005  # drop features with RF importance < this threshold
 
 # Raw price columns that should NEVER be features (they are or strongly proxy
 # today's modal_price — the denominator of the pct-change target -> circular dependency)
@@ -58,8 +60,8 @@ def analyze(label, csv_path, pkl_path):
         print(f"         Re-train the model first, then run this script.")
         return
 
-    features   = payload['features']          # list of feature names used
-    rf_model   = payload['base_estimators'].get('Random Forest')
+    features = payload['features']          # list of feature names used
+    rf_model = payload['base_estimators'].get('Random Forest')
     if rf_model is None:
         print("  [SKIP] Random Forest not in base_estimators")
         return
@@ -73,18 +75,22 @@ def analyze(label, csv_path, pkl_path):
     if leaky_in_model:
         print(f"\n  !!  WARNING: This model was trained on LEAKY features:")
         for f in leaky_in_model:
-            print(f"     '{f}' = same-day raw price column — creates circular dependency")
+            print(
+                f"     '{f}' = same-day raw price column — creates circular dependency")
         print(f"\n  The feature importances below are BIASED because the model learned")
-        print(f"  to use today's price (via {leaky_in_model}) to predict % change from")
+        print(
+            f"  to use today's price (via {leaky_in_model}) to predict % change from")
         print(f"  today's price. All other features appear less important than they")
-        print(f"  really are. This output should NOT be used to set NUMERIC_FEATURES_WANTED.")
+        print(
+            f"  really are. This output should NOT be used to set NUMERIC_FEATURES_WANTED.")
         print(f"\n  ACTION REQUIRED: Re-train the model after running the updated")
         print(f"  feature engineering scripts, then re-run this analysis.")
         print(f"{'='*70}")
         return None
 
     importances = rf_model.feature_importances_
-    imp_series  = pd.Series(importances, index=features).sort_values(ascending=False)
+    imp_series = pd.Series(
+        importances, index=features).sort_values(ascending=False)
 
     # ── Step 1: importance threshold ─────────────────────────────────────────
     low_imp = imp_series[imp_series < IMPORTANCE_ALPHA].index.tolist()
@@ -92,7 +98,8 @@ def analyze(label, csv_path, pkl_path):
     print(f"\n  Total features in trained model : {len(features)}")
     print(f"  Below importance threshold ({IMPORTANCE_ALPHA}): {len(low_imp)}")
     if low_imp:
-        print(f"    -> Dropping low-importance: {low_imp[:10]}{'...' if len(low_imp)>10 else ''}")
+        print(
+            f"    -> Dropping low-importance: {low_imp[:10]}{'...' if len(low_imp) > 10 else ''}")
 
     # ── Step 2: correlation pruning ──────────────────────────────────────────
     df = pd.read_csv(csv_path, nrows=50000)   # sample for speed
@@ -116,7 +123,8 @@ def analyze(label, csv_path, pkl_path):
             else:
                 to_drop_corr.add(col)
 
-    print(f"\n  Correlation pairs |r| > {CORR_THRESHOLD}  ->  dropping {len(to_drop_corr)} redundant features:")
+    print(
+        f"\n  Correlation pairs |r| > {CORR_THRESHOLD}  ->  dropping {len(to_drop_corr)} redundant features:")
     for f in sorted(to_drop_corr):
         partners = [(other, corr.loc[f, other]) for other in feat_cols
                     if other != f and other not in to_drop_corr
@@ -132,7 +140,8 @@ def analyze(label, csv_path, pkl_path):
                    if f not in to_drop_corr and f in feat_cols][:TOP_N_KEEP]
 
     print(f"\n  OK   Final curated feature set: {len(final_feats)} features")
-    print(f"  (down from {len(features)}, -{len(features)-len(final_feats)} features)\n")
+    print(
+        f"  (down from {len(features)}, -{len(features)-len(final_feats)} features)\n")
 
     print("  Rank | Importance | Feature")
     print("  " + "-"*55)
@@ -142,18 +151,19 @@ def analyze(label, csv_path, pkl_path):
         print(f"  {rank:4d} | {imp_val:9.4f} | {feat:<35} {bar}")
 
     # ── Paste-ready NUMERIC_FEATURES_WANTED ─────────────────────────────────
-    print(f"\n  --- Paste this as NUMERIC_FEATURES_WANTED in {label}_ml_v1.py ---")
+    print(
+        f"\n  --- Paste this as NUMERIC_FEATURES_WANTED in {label}_ml_v1.py ---")
     print(f"NUMERIC_FEATURES_WANTED = [")
 
     # Group by semantic category — use ordered dict to avoid duplicates
     categories = {
         'price_lag':     [f for f in final_feats if 'price_lag' in f],
         'rolling_price': [f for f in final_feats if 'rolling_mean' in f or ('volatility' in f and 'price_volatility' in f)],
-        'momentum':      [f for f in final_feats if any(x in f for x in ['pct_change','accel','zscore','norm_trailing', 'price_diff'])],
-        'supply':        [f for f in final_feats if any(x in f for x in ['arrival','supply','tightness'])],
-        'weather':       [f for f in final_feats if any(x in f for x in ['temp','rain','rainfall'])],
-        'fuel':          [f for f in final_feats if any(x in f for x in ['Diesel','diesel','fuel','Petrol','petrol'])],
-        'market_struc':  [f for f in final_feats if any(x in f for x in ['msp','season','regime','harvest','yoy','rsi','macd','ema','month','Day','relative','momentum','ema_7','ema_14'])],
+        'momentum':      [f for f in final_feats if any(x in f for x in ['pct_change', 'accel', 'zscore', 'norm_trailing', 'price_diff'])],
+        'supply':        [f for f in final_feats if any(x in f for x in ['arrival', 'supply', 'tightness'])],
+        'weather':       [f for f in final_feats if any(x in f for x in ['temp', 'rain', 'rainfall'])],
+        'fuel':          [f for f in final_feats if any(x in f for x in ['Diesel', 'diesel', 'fuel', 'Petrol', 'petrol'])],
+        'market_struc':  [f for f in final_feats if any(x in f for x in ['msp', 'season', 'regime', 'harvest', 'yoy', 'rsi', 'macd', 'ema', 'month', 'Day', 'relative', 'momentum', 'ema_7', 'ema_14'])],
     }
 
     # Assign each feature to exactly ONE category (first match wins)

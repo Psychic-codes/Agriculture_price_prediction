@@ -211,6 +211,7 @@ Agriculture_price_prediction/
 │   ├── tailwind.config.js               # Tailwind CSS config
 │   └── tsconfig.json                    # TypeScript configuration
 │
+├── requirements.txt                     # Python dependencies for ML Pipeline
 └── README.md                            # ← You are here
 ```
 
@@ -338,7 +339,7 @@ An **Express.js** server (port 5000) that:
 
 ```bash
 # 1. Install Python dependencies
-pip install pandas numpy scikit-learn xgboost lightgbm pmdarima prophet shap matplotlib seaborn joblib scipy statsmodels openpyxl
+pip install -r requirements.txt
 
 # 2. Run feature engineering (from project root)
 python ml_pipeline/feature_engineering/Vegetable_feature_v1.py

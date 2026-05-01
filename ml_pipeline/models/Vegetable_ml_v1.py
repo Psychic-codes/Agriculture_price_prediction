@@ -1,3 +1,16 @@
+"""
+Vegetable ML Pipeline v1
+-----------------------------
+This script trains and evaluates a stacking ensemble model (XGBoost & Random Forest)
+to predict vegetable prices across a 30-day forecast horizon.
+
+Workflow:
+1. Loads pre-engineered TS-features (lag properties, weather, MSP).
+2. Sets up cross-validation using TimeSeriesSplit.
+3. Automatically fine-tunes hyperparameters using RandomizedSearchCV.
+4. Ensembles the final estimators into a MultiOutputRegressor.
+5. Saves the final production `.pkl` model and extracts confidence intervals.
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,7 +49,8 @@ try:
 except ImportError:
     HAS_LGBM = False
     print("  [INFO] LightGBM not installed — skipping LightGBM model")
-from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit, ParameterGrid
+import optuna
+from sklearn.model_selection import RandomizedSearchCV, cross_val_score, TimeSeriesSplit, ParameterGrid
 from matplotlib.patches import Patch
 from scipy.stats import norm
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
@@ -59,7 +73,6 @@ df = df.dropna(subset=['modal_price'])
 print(f"  Loaded  : {df.shape[0]:,} rows x {df.shape[1]} columns")
 print(f"  Dates   : {df['date'].min().date()} -> {df['date'].max().date()}")
 print(f"  Commod. : {df['commodity'].unique().tolist()}")
-
 
 NUMERIC_FEATURES_WANTED = [
     # -- Price signal (lagged -- no leakage) ----------------------------------
@@ -106,7 +119,6 @@ NUMERIC_FEATURES_WANTED = [
 ]
 
 NUMERIC_FEATURES = [f for f in NUMERIC_FEATURES_WANTED if f in df.columns]
-
 
 for c_name, grp in df.groupby('commodity'):
     idx   = grp.index
@@ -158,17 +170,6 @@ if missing_after:
 else:
     print('   All expected features present')
 # ── Exogenous features ───────────────────────────────────────────────────────
-SARIMAX_EXOG_WANTED = [
-    'msp', 'Diesel_price', 'rainfall_7d', 'temp_7d_avg',
-    'Month_Num', 'season_enc', 'price_lag_3', 'arrival_rolling_7'
-]
-SARIMAX_EXOG = [c for c in SARIMAX_EXOG_WANTED if c in df.columns]
-
-PROPHET_REGRESSORS_WANTED = [
-    'msp', 'Diesel_price', 'rainfall_7d', 'temp_7d_avg',
-    'Month_Num', 'season_enc', 'price_lag_3', 'arrival_rolling_7'
-]
-PROPHET_REGRESSORS = [c for c in PROPHET_REGRESSORS_WANTED if c in df.columns]
 
 TARGET = [f'target_{i}d_pct_change' for i in range(1, 31)] # ML stationary target (30-day vector)
 ACTUAL_TARGET = [f'target_lead_{i}' for i in range(1, 31)]   # True future price (30-day vector)
@@ -202,47 +203,7 @@ print(f"  Date cutoffs  : Train end={DATE_TRAIN_END.date()}  "
 # 2. HYPERPARAMETER SEARCH SPACES
 # ─────────────────────────────────────────────
 PARAM_GRIDS = {
-    'Ridge Regression': {
-        'ridge__alpha': [0.01, 0.1, 1, 3, 5, 10, 50, 100, 300, 500, 1000, 2000, 3000, 4000, 5000]
-    },
-    'Lasso Regression': {
-        'lasso__alpha':    [0.01, 0.1, 1, 3, 5, 10, 20, 40, 80, 100, 200, 400, 800],
-        'lasso__max_iter': [100, 200, 500, 1000, 2000, 5000, 10000]
-    },
 
-    'ElasticNet': {
-        'elasticnet__alpha':    [0.01, 0.1, 1, 5, 10, 50, 100, 300],
-        'elasticnet__l1_ratio': [0.1, 0.2, 0.3, 0.5, 0.7, 0.9],
-        'elasticnet__max_iter': [500, 1000, 2000, 5000, 10000]
-    },
-
-    'Huber Regression': {
-    'huber__epsilon':  [1.35, 1.5, 2.0, 2.5],   # remove 1.1 — too aggressive, causes instability
-    'huber__alpha':    [0.001, 0.01, 0.1, 1.0],   # remove 0.0001 and 10.0 extremes
-    'huber__max_iter': [500, 1000, 2000]           # was [200, 500, 1000] — too low for price scale
-    },
-
-    'Extra Trees': {
-        'n_estimators':    [50, 100, 200, 300],
-        'max_depth':       [3, 4, 5, 6, 8, 10],
-        'min_samples_leaf':[5, 10, 15, 50, 100, 150],
-        'min_samples_split':[100, 200],
-        'max_features':    [0.3, 'sqrt', 0.5, 0.7]
-    },
-    'Gradient Boosting': {
-        'n_estimators':    [200, 500, 1000, 2000],
-        'learning_rate':   [0.01, 0.03, 0.05, 0.1],
-        'max_depth':       [2, 3, 4],
-        'subsample':       [0.6, 0.7, 0.8],
-        'min_samples_leaf':[10, 20, 50, 100, 200]
-    },
-    'Hist Gradient Boosting': {
-        'max_iter':          [300, 500, 1000, 2000],
-        'learning_rate':     [0.01, 0.03, 0.05, 0.1],
-        'max_depth':         [2, 3, 4, 6],
-        'min_samples_leaf':  [20, 50, 80, 100, 150, 200],
-        'l2_regularization': [0.1, 1.0, 2.0, 5.0, 10.0, 20.0]
-    },
     'XGBoost': {
         'n_estimators':      [200, 500, 1000, 2000],
         'learning_rate':     [0.01, 0.03, 0.05, 0.1],
@@ -272,21 +233,6 @@ PARAM_GRIDS = {
         'reg_lambda':        [1.0, 2.0, 10, 20],
     }
 }
-
-# ── IMP 6: Expanded Prophet HPT grid (30 combos, was 12) ────────────────────
-# Added changepoint_prior_scale=0.001 (very flat) and 0.3 (flexible)
-# Added seasonality_prior_scale=0.1 (tight seasonality)
-# Added n_changepoints=15 (fewer pivots — better for Wheat's steady trend)
-PROPHET_PARAM_GRID = list(ParameterGrid({
-    'changepoint_prior_scale': [0.001, 0.01, 0.1, 0.3, 0.5],
-    'seasonality_prior_scale': [0.1, 1.0, 10.0],
-    'seasonality_mode':        ['additive', 'multiplicative'],
-    'n_changepoints':          [15, 25],
-}))
-# 5 * 3 * 2 * 2 = 60 combos — cap at 30 for runtime by sampling
-import random; random.seed(42)
-if len(PROPHET_PARAM_GRID) > 30:
-    PROPHET_PARAM_GRID = random.sample(PROPHET_PARAM_GRID, 30)
 
 # ─────────────────────────────────────────────
 # 3. HELPERS
@@ -321,7 +267,6 @@ def _mae_rupee_space(y_true_log, y_pred_log):
 
 TREE_SCORER   = 'neg_mean_absolute_error'
 LINEAR_SCORER = 'neg_mean_absolute_error'
-
 
 #
 class DynamicPriceLevelWrapper(BaseEstimator, RegressorMixin):
@@ -378,7 +323,7 @@ def metrics(y_true, y_pred):
     # If passed a matrix, metric functions compute across all dimensions and return the mean.
     mae  = mean_absolute_error(y_true, y_pred)
     # RMSE across multiple outputs needs multioutput='uniform_average' handles this internally for MSE
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred)) 
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     r2   = r2_score(y_true, y_pred)
     mape = np.mean(np.abs((y_true - y_pred) / (y_true + 1e-6))) * 100
     return {'MAE': mae, 'RMSE': rmse, 'R2': r2, 'MAPE': mape}
@@ -388,10 +333,10 @@ def evaluate(y_true_actual_matrix, y_pred_pct_matrix, price_base, name, split_la
     # Add an axis to price_base if necessary to broadcast against (N, 30) array natively
     pb_col = price_base[:, None] if len(price_base.shape) == 1 else price_base
     y_pred_actual_matrix = pb_col * (1 + y_pred_pct_matrix)
-    
+
     y_true = y_true_actual_matrix
     y_pred = y_pred_actual_matrix
-    
+
     mae_val  = mean_absolute_error(y_true, y_pred)
     rmse_val = np.sqrt(mean_squared_error(y_true, y_pred))
     r2_val   = r2_score(y_true, y_pred)
@@ -424,7 +369,7 @@ def evaluate(y_true_actual_matrix, y_pred_pct_matrix, price_base, name, split_la
 
     # Print all lines vertically
     print('\n'.join(detail_msg))
-    
+
     # Return the overall metrics as before
     m = {'MAE': mae_val, 'RMSE': rmse_val, 'R2': r2_val, 'MAPE': mape_val}
     return m, y_pred_actual_matrix
@@ -473,7 +418,6 @@ def make_search_estimator(name):
         raise ValueError(f"Model '{name}' not available")
     return est
 
-
 def tune_model(name, X_train, y_train, tscv, sample_weight=None, lag1_idx=None):
 
     estimator  = make_search_estimator(name)
@@ -491,23 +435,35 @@ def tune_model(name, X_train, y_train, tscv, sample_weight=None, lag1_idx=None):
         scorer = LINEAR_SCORER
 
     fit_params = {}
-    
+
     if name == 'XGBoost':
         fit_params['verbose']  = False
     elif name == 'LightGBM' and HAS_LGBM:
         fit_params['callbacks'] = [__import__('lightgbm').log_evaluation(-1)]
 
-    search = RandomizedSearchCV(
-    estimator, param_distributions=param_grid,
-    n_iter=20, cv=tscv, scoring=scorer,
-    n_jobs=1, random_state=42,
-    refit=False,           # <- disable auto-refit
-    error_score=np.nan
-)
-    search.fit(X_train, y_train, **fit_params)
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+    def objective(trial):
+        trial_params = {}
+        for k, v in param_grid.items():
+            trial_params[k] = trial.suggest_categorical(k, v)
+        
+        est_clone = __import__('sklearn').base.clone(estimator)
+        est_clone.set_params(**trial_params)
+        
+        scores = __import__('sklearn').model_selection.cross_val_score(
+            est_clone, X_train, y_train, 
+            cv=tscv, scoring=scorer, n_jobs=1,
+            params=fit_params, error_score=np.nan
+        )
+        return scores.mean()
+
+    study = optuna.create_study(direction="maximize")
+    study.optimize(objective, n_trials=30)
+    
+    best_params = study.best_params
+    best_score = -study.best_value
 
     # ── Manual refit on full training data with best params ──────────────────
-    best_params = search.best_params_
     estimator.set_params(**best_params)
 
     # Build refit kwargs
@@ -526,7 +482,6 @@ def tune_model(name, X_train, y_train, tscv, sample_weight=None, lag1_idx=None):
         refit_kwargs['estimator__verbose']  = False
     elif name == 'LightGBM' and HAS_LGBM:
         estimator.set_params(estimator__early_stopping_round=None)
-        
 
     try:
         estimator.fit(X_train, y_train, **refit_kwargs)
@@ -555,142 +510,9 @@ def tune_model(name, X_train, y_train, tscv, sample_weight=None, lag1_idx=None):
             # Generic fallback — fit with no extra kwargs
             estimator.fit(X_train, y_train)
 
-    return estimator, best_params, -search.best_score_
-
+    return estimator, best_params, best_score
 
 # ── Time-series helpers ──────────────────────────────────────────────────────
-def fit_arima(y_train):
-    model = pm.auto_arima(
-        y_train, start_p=1, start_q=1, max_p=5, max_q=5, d=None,
-        seasonal=False, stepwise=True, information_criterion='aic',
-        suppress_warnings=True, error_action='ignore', n_fits=50
-    )
-    return model
-
-def fit_sarimax(y_train, X_exog_train):
-    model = pm.auto_arima(
-        y_train, exogenous=X_exog_train,
-        start_p=0, start_q=0, max_p=3, max_q=3, d=None,
-        seasonal=True, m=7, start_P=0, start_Q=0, max_P=1, max_Q=1, D=None,
-        stepwise=True, information_criterion='aic',
-        suppress_warnings=True, error_action='ignore', n_fits=30
-    )
-    return model
-
-def tune_prophet(y_train, dates_train, regressors_train):
-    n           = len(y_train)
-    n_hpt       = max(30, int(n * 0.15))
-    y_ht        = y_train[:-n_hpt];   y_hv = y_train[-n_hpt:]
-    d_ht        = dates_train[:-n_hpt]; d_hv = dates_train[-n_hpt:]
-    r_ht = regressors_train.iloc[:-n_hpt].reset_index(drop=True) \
-           if regressors_train is not None else None
-    r_hv = regressors_train.iloc[-n_hpt:].reset_index(drop=True) \
-           if regressors_train is not None else None
-
-    best_mae    = np.inf
-    best_params = PROPHET_PARAM_GRID[0]
-
-    print(f"      Prophet HPT: {len(PROPHET_PARAM_GRID)} param combos ...", end=" ", flush=True)
-    for params in PROPHET_PARAM_GRID:
-        try:
-            m = Prophet(
-                changepoint_prior_scale=params['changepoint_prior_scale'],
-                seasonality_prior_scale=params['seasonality_prior_scale'],
-                seasonality_mode=params['seasonality_mode'],
-                n_changepoints=params.get('n_changepoints', 25),
-
-                changepoint_range=0.95,
-                yearly_seasonality=True, weekly_seasonality=True,
-                daily_seasonality=False
-            )
-            m.add_seasonality(name='monthly', period=30.5, fourier_order=5)
-            # IMP 6: also add quarterly seasonality
-            m.add_seasonality(name='quarterly', period=91.25, fourier_order=3)
-            train_df = pd.DataFrame({'ds': d_ht, 'y': y_ht})
-            if r_ht is not None:
-                for col in r_ht.columns:
-                    m.add_regressor(col); train_df[col] = r_ht[col].values
-            m.fit(train_df, iter=150)
-            future_df = pd.DataFrame({'ds': d_hv})
-            if r_hv is not None:
-                for col in r_hv.columns: future_df[col] = r_hv[col].values
-            fc  = m.predict(future_df)
-            mae = mean_absolute_error(y_hv, fc['yhat'].values)
-            if mae < best_mae:
-                best_mae = mae; best_params = params
-        except Exception:
-            continue
-    print(f"best CV MAE=Rs.{best_mae:.2f}  {best_params}")
-    return best_params, best_mae
-
-def fit_prophet(y_train, dates_train, best_params, regressors_train):
-    m = Prophet(
-        changepoint_prior_scale=best_params['changepoint_prior_scale'],
-        seasonality_prior_scale=best_params['seasonality_prior_scale'],
-        seasonality_mode=best_params['seasonality_mode'],
-        n_changepoints=best_params.get('n_changepoints', 25),
-        changepoint_range=0.95,   # FIX: detect late regime shifts (default=0.80 missed Arhar shift)
-        yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False
-    )
-    m.add_seasonality(name='monthly', period=30.5, fourier_order=5)
-    m.add_seasonality(name='quarterly', period=91.25, fourier_order=3)
-    train_df = pd.DataFrame({'ds': dates_train, 'y': y_train})
-    if regressors_train is not None:
-        for col in regressors_train.columns:
-            m.add_regressor(col); train_df[col] = regressors_train[col].values
-    m.fit(train_df, iter=500)
-    return m
-
-def prophet_predict(model, dates_future, regressors_future):
-    future_df = pd.DataFrame({'ds': dates_future})
-    if regressors_future is not None:
-        for col in regressors_future.columns:
-            future_df[col] = regressors_future[col].values
-    fc = model.predict(future_df)
-    return fc['yhat'].values, fc
-
-
-# ── IMP 4: Walk-forward helpers (ARIMA + SARIMAX) ───────────────────────────
-from statsmodels.tsa.statespace.sarimax import SARIMAX as SM_SARIMAX
-from statsmodels.tsa.arima.model import ARIMA as SM_ARIMA
-
-def arima_walk_forward_fast(y_train_wf, y_pred_period, order):
-    """
-    IMP 4: ARIMA Walk-Forward.
-    FIX: removed disp=False — statsmodels >=0.14 SM_ARIMA.fit() no longer
-    accepts 'disp'; use method_kwargs to suppress convergence warnings only.
-    """
-    try:
-        sm  = SM_ARIMA(y_train_wf, order=order)
-        res = sm.fit(method_kwargs={'warn_convergence': False})
-        res_applied = res.apply(y_pred_period, refit=False)
-        fv = res_applied.fittedvalues
-        return fv.values if hasattr(fv, 'values') else np.asarray(fv)
-    except Exception as e:
-        print(f"      ARIMA WF fallback ({e})")
-        # Naive walk-forward: repeat last known value (better than mean)
-        return np.full(len(y_pred_period), y_train_wf[-1])
-
-def sarimax_walk_forward_fast(y_train_wf, X_train_wf,
-                               y_pred_period, X_pred_period,
-                               order, s_order):
-
-    for method in ['lbfgs', 'nm', 'powell']:
-        try:
-            sm  = SM_SARIMAX(y_train_wf, exog=X_train_wf,
-                             order=order, seasonal_order=s_order,
-                             enforce_stationarity=False, enforce_invertibility=False)
-            res = sm.fit(disp=False, maxiter=300, method=method)
-            res_applied = res.apply(y_pred_period, exog=X_pred_period, refit=False)
-            fv = res_applied.fittedvalues
-            return fv.values if hasattr(fv, 'values') else np.asarray(fv)
-        except Exception as e:
-            last_err = e
-            continue
-    print(f"      SARIMAX WF fallback (all methods failed: {last_err})")
-    return np.full(len(y_pred_period), y_train_wf[-1])
-
-
 # ─────────────────────────────────────────────
 # 4. MAIN TRAINING LOOP (GLOBAL MULTI-COMMODITY)
 # ─────────────────────────────────────────────
@@ -705,7 +527,7 @@ cv_mae_table      = {}
 
 # ML Models only (no Prophet/ARIMA for pooled commodity learning in this script)
 # [CRITICAL FIX] Removing Ridge Regression. The massive varying scales of absolute
-# feature prices relative to the 0.05 targets caused exploding CV errors (3000+) 
+# feature prices relative to the 0.05 targets caused exploding CV errors (3000+)
 # while tree algorithms are naturally immune to cross-scale magnitudes.
 # RE-ADD Random Forest, Gradient Boosting for Multi-Estimator Ensembling.
 # Extra Trees and Gradient Boosting are temporarily disabled for speed.
@@ -792,7 +614,7 @@ from sklearn.multioutput import MultiOutputRegressor
 
 # FIX: Reverting to MultiOutputRegressor(StackingRegressor(...))
 # StackingRegressor explicitly blocks 2D targets natively via `column_or_1d(y)`.
-# Thus, StackingRegressor must be wrapped inside MultiOutputRegressor, which handles the 
+# Thus, StackingRegressor must be wrapped inside MultiOutputRegressor, which handles the
 # 30 output columns individually. We pass base 1D estimators to the StackingRegressor.
 
 from sklearn.base import clone as _clone
@@ -833,7 +655,7 @@ os.makedirs('ml_pipeline/models/saved_models', exist_ok=True)
 import joblib
 joblib.dump({
     'model': stacking_model,
-    'base_estimators': best_estimators, 
+    'base_estimators': best_estimators,
     'features': X_cols
 }, 'ml_pipeline/models/saved_models/global_veg_stacking_30d.pkl')
 print(f"    -> Saved global stacking multi-output model to ml_pipeline/models/saved_models/global_veg_stacking_30d.pkl")
@@ -851,7 +673,7 @@ EVAL_MODELS = ML_MODEL_NAMES + ['Stacking Ensemble']
 
 for name in EVAL_MODELS:
     est = best_estimators[name]
-    
+
     # Predict percentage change explicitly
     # NOTE: Stacking Ensemble is now a bare StackingRegressor (not wrapped in MultiOutputRegressor)
     # so .predict() already returns shape (N, 30) — no special handling needed.
@@ -861,7 +683,7 @@ for name in EVAL_MODELS:
     # Evaluate algebraically backs-out absolute price predictions
     vm, p_val_actual  = evaluate(y_actual_val,  p_val_pct,  price_base_val,  name, 'VALIDATION', X_eval_df=df_global.iloc[t1:t2][X_cols])
     tm, p_test_actual = evaluate(y_actual_test, p_test_pct, price_base_test, name, 'TEST', X_eval_df=df_global.iloc[t2:][X_cols])
-    
+
     val_list.append({'model': name, **vm})
     test_list.append({'model': name, **tm})
     preds_dict[f'val_{name}']  = p_val_actual

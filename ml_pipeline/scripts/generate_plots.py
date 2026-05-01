@@ -1,15 +1,15 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-import matplotlib.dates as mdates
-import matplotlib.patches as mpatches
-from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
-import joblib
 import os
 import warnings
-from sklearn.preprocessing import LabelEncoder
+
+import joblib
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import numpy as np
+import pandas as pd
+from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.preprocessing import LabelEncoder
 
 warnings.filterwarnings('ignore')
 
@@ -33,10 +33,10 @@ plt.rcParams.update({
 })
 
 C_ACTUAL = '#24292F'
-C_TRAIN  = '#0969DA'
-C_VAL    = '#E36209'
-C_TEST   = '#1A7F37'
-C_BG     = '#F6F8FA'
+C_TRAIN = '#0969DA'
+C_VAL = '#E36209'
+C_TEST = '#1A7F37'
+C_BG = '#F6F8FA'
 
 
 # -- Helpers -------------------------------------------------------------------
@@ -47,23 +47,27 @@ def safe_metric(y_true, y_pred):
         return dict(mae=np.nan, rmse=np.nan, r2=np.nan, mape=np.nan)
     yt, yp = y_true[mask], y_pred[mask]
     return dict(
-        mae  = mean_absolute_error(yt, yp),
-        rmse = np.sqrt(mean_squared_error(yt, yp)),
-        r2   = r2_score(yt, yp),
-        mape = np.mean(np.abs((yt - yp) / (np.abs(yt) + 1e-9))) * 100,
+        mae=mean_absolute_error(yt, yp),
+        rmse=np.sqrt(mean_squared_error(yt, yp)),
+        r2=r2_score(yt, yp),
+        mape=np.mean(np.abs((yt - yp) / (np.abs(yt) + 1e-9))) * 100,
     )
 
 
 def r2_color(r2):
-    if r2 >= 0.85: return '#1A7F37'
-    if r2 >= 0.65: return '#E36209'
+    if r2 >= 0.85:
+        return '#1A7F37'
+    if r2 >= 0.65:
+        return '#E36209'
     return '#CF222E'
 
 
 def fmt_inr(ax, axis='y'):
     fmt = mticker.FuncFormatter(lambda x, _: f'Rs.{x:,.0f}')
-    if axis == 'y': ax.yaxis.set_major_formatter(fmt)
-    else:           ax.xaxis.set_major_formatter(fmt)
+    if axis == 'y':
+        ax.yaxis.set_major_formatter(fmt)
+    else:
+        ax.xaxis.set_major_formatter(fmt)
 
 
 # -- Single commodity plot ----------------------------------------------------
@@ -71,12 +75,16 @@ def fmt_inr(ax, axis='y'):
 def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
 
     df_train = df_comm[df_comm['date'] <= train_end]
-    df_val   = df_comm[(df_comm['date'] > train_end) & (df_comm['date'] <= val_end)]
-    df_test  = df_comm[df_comm['date'] > val_end]
+    df_val = df_comm[(df_comm['date'] > train_end) &
+                     (df_comm['date'] <= val_end)]
+    df_test = df_comm[df_comm['date'] > val_end]
 
-    m_tr = safe_metric(df_train['actual_price_30d'].values, df_train['predicted_price_30d'].values)
-    m_vl = safe_metric(df_val['actual_price_30d'].values,   df_val['predicted_price_30d'].values)
-    m_ts = safe_metric(df_test['actual_price_30d'].values,  df_test['predicted_price_30d'].values)
+    m_tr = safe_metric(df_train['actual_price_30d'].values,
+                       df_train['predicted_price_30d'].values)
+    m_vl = safe_metric(df_val['actual_price_30d'].values,
+                       df_val['predicted_price_30d'].values)
+    m_ts = safe_metric(df_test['actual_price_30d'].values,
+                       df_test['predicted_price_30d'].values)
 
     # -- figure: tall + wide, two rows clearly separated --
     fig = plt.figure(figsize=(22, 16), facecolor=C_BG)
@@ -114,16 +122,21 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
     # -- shaded zones --
     d_min = df_comm['date'].min()
     d_max = df_comm['date'].max()
-    ax_main.axvspan(d_min,      train_end, color='#DDF4FF', alpha=0.35, zorder=0)
-    ax_main.axvspan(train_end,  val_end,   color='#FFF8C5', alpha=0.45, zorder=0)
-    ax_main.axvspan(val_end,    d_max,     color='#DAFBE1', alpha=0.40, zorder=0)
+    ax_main.axvspan(d_min,      train_end,
+                    color='#DDF4FF', alpha=0.35, zorder=0)
+    ax_main.axvspan(train_end,  val_end,
+                    color='#FFF8C5', alpha=0.45, zorder=0)
+    ax_main.axvspan(val_end,    d_max,     color='#DAFBE1',
+                    alpha=0.40, zorder=0)
 
-    ax_main.axvline(train_end, color=C_TRAIN, lw=1.2, ls='--', alpha=0.55, zorder=2)
-    ax_main.axvline(val_end,   color=C_VAL,   lw=1.2, ls='--', alpha=0.55, zorder=2)
+    ax_main.axvline(train_end, color=C_TRAIN, lw=1.2,
+                    ls='--', alpha=0.55, zorder=2)
+    ax_main.axvline(val_end,   color=C_VAL,   lw=1.2,
+                    ls='--', alpha=0.55, zorder=2)
 
     # zone labels (top of chart)
-    ymax = df_comm[['actual_price_30d','predicted_price_30d']].max().max()
-    ymin = df_comm[['actual_price_30d','predicted_price_30d']].min().min()
+    ymax = df_comm[['actual_price_30d', 'predicted_price_30d']].max().max()
+    ymin = df_comm[['actual_price_30d', 'predicted_price_30d']].min().min()
     ypad = (ymax - ymin) * 0.03
 
     for xpos, lbl, col in [
@@ -207,10 +220,10 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
 
     # -- title & subtitle --
     last_actual = df_comm['actual_price_30d'].dropna().iloc[-1] \
-                  if not df_comm['actual_price_30d'].dropna().empty else np.nan
-    last_pred   = df_comm['predicted_price_30d'].dropna().iloc[-1] \
-                  if not df_comm['predicted_price_30d'].dropna().empty else np.nan
-    last_date   = str(df_comm['date'].iloc[-1])[:10]
+        if not df_comm['actual_price_30d'].dropna().empty else np.nan
+    last_pred = df_comm['predicted_price_30d'].dropna().iloc[-1] \
+        if not df_comm['predicted_price_30d'].dropna().empty else np.nan
+    last_date = str(df_comm['date'].iloc[-1])[:10]
 
     fig.text(0.5, 0.945,
              f'{commodity.upper()}  —  30-Day Forward Price Prediction',
@@ -224,7 +237,7 @@ def plot_commodity(commodity, df_comm, train_end, val_end, out_dir):
 
     # -- save --
     clean = commodity.replace(' ', '_').replace('(', '').replace(')', '')
-    path  = f"{out_dir}/{clean}_30d_forecast.png"
+    path = f"{out_dir}/{clean}_30d_forecast.png"
     plt.savefig(path, dpi=180, bbox_inches='tight', facecolor=C_BG)
     plt.close()
     print(f"  OK  Saved -> {path}")
@@ -241,10 +254,11 @@ def plot_commodity_group(csv_path, model_path, train_end, val_end):
         print("  X  Missing files -- skipping.")
         return
 
-    stacker_model     = payload['model']
+    stacker_model = payload['model']
     expected_features = payload['features']
 
-    df_base   = df_base.sort_values(by=['commodity', 'date']).reset_index(drop=True)
+    df_base = df_base.sort_values(
+        by=['commodity', 'date']).reset_index(drop=True)
     df_global = pd.get_dummies(df_base, columns=['commodity'])
 
     for col in ['month', 'state']:
@@ -269,8 +283,8 @@ def plot_commodity_group(csv_path, model_path, train_end, val_end):
             le = LabelEncoder()
             df_features[col] = le.fit_transform(df_features[col].astype(str))
 
-        X            = df_features.fillna(df_features.median(numeric_only=True)).values
-        preds        = stacker_model.predict(X)
+        X = df_features.fillna(df_features.median(numeric_only=True)).values
+        preds = stacker_model.predict(X)
 
         # Fix #1: average day 25-30 predictions (indices 24:30) instead of
         #         day-30 only — smooths noise on the hardest forecast horizon
@@ -280,9 +294,11 @@ def plot_commodity_group(csv_path, model_path, train_end, val_end):
         #         outliers from tanking per-commodity R2
         pred_pct_30d = np.clip(pred_pct_30d, -0.50, 1.00)
 
-        df_comm['predicted_price_30d'] = df_comm['modal_price'] * (1 + pred_pct_30d)
+        df_comm['predicted_price_30d'] = df_comm['modal_price'] * \
+            (1 + pred_pct_30d)
         if 'target_30d_pct' in df_comm.columns:
-            df_comm['actual_price_30d'] = df_comm['modal_price'] * (1 + df_comm['target_30d_pct'])
+            df_comm['actual_price_30d'] = df_comm['modal_price'] * \
+                (1 + df_comm['target_30d_pct'])
         else:
             df_comm['actual_price_30d'] = df_comm['modal_price'].shift(-30)
 

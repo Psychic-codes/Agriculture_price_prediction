@@ -1,10 +1,11 @@
-import joblib
-import pandas as pd
-import numpy as np
-import shap
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import os
+
+import joblib
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import shap
 from sklearn.preprocessing import LabelEncoder
 
 warnings = __import__('warnings')
@@ -28,8 +29,8 @@ plt.rcParams.update({
 
 POSITIVE = '#3fb950'
 NEGATIVE = '#f85149'
-ACCENT   = '#58a6ff'
-BG_DARK  = '#0d1117'
+ACCENT = '#58a6ff'
+BG_DARK = '#0d1117'
 BG_PANEL = '#161b22'
 
 
@@ -43,9 +44,9 @@ def encode_df(df_feat):
 
 
 def prepare_latest(csv_path, features):
-    df     = pd.read_csv(csv_path, parse_dates=['date'])
+    df = pd.read_csv(csv_path, parse_dates=['date'])
     latest = df.groupby('commodity').last().reset_index()
-    ohe    = pd.get_dummies(latest, columns=['commodity'])
+    ohe = pd.get_dummies(latest, columns=['commodity'])
     for col in ['month', 'state']:
         if col in ohe.columns:
             le = LabelEncoder()
@@ -64,15 +65,15 @@ def plot_commodity(commodity, shap_row, features, base_val,
                    modal_price, last_date, label, out_dir, n_top=15):
 
     # rank features by |SHAP|
-    abs_vals  = np.abs(shap_row)
-    top_idx   = np.argsort(abs_vals)[::-1][:n_top]
-    vals      = shap_row[top_idx]
-    names     = [features[i] for i in top_idx]
+    abs_vals = np.abs(shap_row)
+    top_idx = np.argsort(abs_vals)[::-1][:n_top]
+    vals = shap_row[top_idx]
+    names = [features[i] for i in top_idx]
 
     # sort bottom→top for horizontal bar
-    order  = np.argsort(vals)
-    vals   = vals[order]
-    names  = [names[i] for i in order]
+    order = np.argsort(vals)
+    vals = vals[order]
+    names = [names[i] for i in order]
     colors = [POSITIVE if v > 0 else NEGATIVE for v in vals]
 
     # predicted output = base + sum of all shap
@@ -89,7 +90,7 @@ def plot_commodity(commodity, shap_row, features, base_val,
 
     # value labels
     x_range = max(abs(vals.min()), abs(vals.max()))
-    offset  = x_range * 0.015
+    offset = x_range * 0.015
     for i, (bar, v) in enumerate(zip(bars, vals)):
         sign = '+' if v >= 0 else ''
         ax.text(
@@ -116,9 +117,9 @@ def plot_commodity(commodity, shap_row, features, base_val,
     ax.grid(axis='x', zorder=1)
 
     # ── header box ──
-    direction   = '▲' if predicted > base_val else '▼'
-    dir_color   = POSITIVE if predicted > base_val else NEGATIVE
-    change_pct  = (predicted - base_val) / (abs(base_val) + 1e-9) * 100
+    direction = '▲' if predicted > base_val else '▼'
+    POSITIVE if predicted > base_val else NEGATIVE
+    change_pct = (predicted - base_val) / (abs(base_val) + 1e-9) * 100
 
     fig.text(0.5, 0.97,
              f'SHAP Feature Attribution  ·  {commodity.upper()}  ·  {label}',
@@ -151,7 +152,7 @@ def plot_commodity(commodity, shap_row, features, base_val,
 
     plt.tight_layout(rect=[0, 0, 1, 0.92])
     clean = commodity.replace(' ', '_').replace('(', '').replace(')', '')
-    path  = f"{out_dir}/{clean}_shap.png"
+    path = f"{out_dir}/{clean}_shap.png"
     plt.savefig(path, dpi=220, bbox_inches='tight', facecolor=BG_DARK)
     plt.close()
     print(f"  ✔  {commodity.title():30s} → {path}")
@@ -164,35 +165,35 @@ def generate_shap_plots(csv_path, model_path, label):
     print(f"  {label}")
     print(f"{'='*60}")
 
-    out_dir  = 'ml_pipeline/plots/shap/'
-    payload  = joblib.load(model_path)
+    out_dir = 'ml_pipeline/plots/shap/'
+    payload = joblib.load(model_path)
     features = payload['features']
-    base     = payload['base_estimators']
+    base = payload['base_estimators']
 
     latest, X_latest = prepare_latest(csv_path, features)
-    commodities      = latest['commodity'].tolist()
+    commodities = latest['commodity'].tolist()
 
-    explainer   = shap.TreeExplainer(base['XGBoost'].estimators_[0])
+    explainer = shap.TreeExplainer(base['XGBoost'].estimators_[0])
     shap_latest = explainer.shap_values(X_latest)
-    ev          = explainer.expected_value
-    base_val    = float(np.mean(ev)) if hasattr(ev, '__len__') else float(ev)
+    ev = explainer.expected_value
+    base_val = float(np.mean(ev)) if hasattr(ev, '__len__') else float(ev)
 
     df_raw = pd.read_csv(csv_path, parse_dates=['date'])
 
     for i, commodity in enumerate(commodities):
-        row      = latest[latest['commodity'] == commodity].iloc[0]
-        last_date    = row.get('date', 'N/A')
-        modal_price  = float(row.get('modal_price', 0))
+        row = latest[latest['commodity'] == commodity].iloc[0]
+        last_date = row.get('date', 'N/A')
+        modal_price = float(row.get('modal_price', 0))
         print(f"\n  [{i+1}/{len(commodities)}] {commodity.title()}")
         plot_commodity(
-            commodity    = commodity,
-            shap_row     = shap_latest[i],
-            features     = features,
-            base_val     = base_val,
-            modal_price  = modal_price,
-            last_date    = last_date,
-            label        = label,
-            out_dir      = out_dir,
+            commodity=commodity,
+            shap_row=shap_latest[i],
+            features=features,
+            base_val=base_val,
+            modal_price=modal_price,
+            last_date=last_date,
+            label=label,
+            out_dir=out_dir,
         )
 
     print(f"\n✅  {label} — {len(commodities)} plot(s) saved to {out_dir}/\n")
@@ -201,13 +202,13 @@ def generate_shap_plots(csv_path, model_path, label):
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 generate_shap_plots(
-    csv_path   = 'ml_pipeline/data/Cereal_Feature_v2_Multi.csv',
-    model_path = 'ml_pipeline/models/saved_models/global_stacking_30d.pkl',
-    label      = 'Cereals',
+    csv_path='ml_pipeline/data/Cereal_Feature_v2_Multi.csv',
+    model_path='ml_pipeline/models/saved_models/global_stacking_30d.pkl',
+    label='Cereals',
 )
 
 generate_shap_plots(
-    csv_path   = 'ml_pipeline/data/Vegetable_Feature_v2_Multi.csv',
-    model_path = 'ml_pipeline/models/saved_models/global_veg_stacking_30d.pkl',
-    label      = 'Vegetables',
+    csv_path='ml_pipeline/data/Vegetable_Feature_v2_Multi.csv',
+    model_path='ml_pipeline/models/saved_models/global_veg_stacking_30d.pkl',
+    label='Vegetables',
 )

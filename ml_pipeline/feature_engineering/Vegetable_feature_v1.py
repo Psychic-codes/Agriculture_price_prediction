@@ -1,7 +1,6 @@
-import pandas as pd
-import numpy as np
 import os
-from sklearn.preprocessing import LabelEncoder
+
+import pandas as pd
 
 print("=" * 60)
 print("  VEGETABLE FEATURE ENGINEERING PIPELINE v2")
@@ -24,17 +23,18 @@ for product, data in product_sheets.items():
     if "Price" not in data or "Arrival" not in data:
         continue
 
-    p_df       = data["Price"].copy()
+    p_df = data["Price"].copy()
     arrival_df = data["Arrival"].copy()
 
-    p_df["Date"]       = pd.to_datetime(p_df["Date"])
+    p_df["Date"] = pd.to_datetime(p_df["Date"])
     arrival_df["Date"] = pd.to_datetime(arrival_df["Date"])
 
     merged = pd.merge(p_df, arrival_df, on="Date", how="outer")
 
-    min_date   = merged["Date"].min()
-    max_date   = merged["Date"].max()
-    full_dates = pd.DataFrame({"Date": pd.date_range(min_date, max_date, freq="D")})
+    min_date = merged["Date"].min()
+    max_date = merged["Date"].max()
+    full_dates = pd.DataFrame(
+        {"Date": pd.date_range(min_date, max_date, freq="D")})
 
     merged = full_dates.merge(merged, on="Date", how="left")
     merged["commodity"] = product
@@ -50,7 +50,8 @@ column_map = {
 }
 price_df = price_df.rename(columns=column_map)
 
-new_arr_col = [c for c in price_df.columns if "arrival" in c.lower() and c != "arrivals"]
+new_arr_col = [c for c in price_df.columns if "arrival" in c.lower()
+               and c != "arrivals"]
 if new_arr_col:
     price_df.rename(columns={new_arr_col[0]: "arrivals"}, inplace=True)
 
@@ -101,7 +102,8 @@ price_df["zero_arrival_flag"] = (price_df["arrivals"] == 0).astype(int)
 # shock focus), but 7-day + 14-day windows are also added for
 # consistency with the Cereal pipeline.
 # ─────────────────────────────────────────────────────────────
-weather_df = pd.read_csv("ml_pipeline/data/maharashtra_daily_weather_2015_2025.csv")
+weather_df = pd.read_csv(
+    "ml_pipeline/data/maharashtra_daily_weather_2015_2025.csv")
 weather_df["date"] = pd.to_datetime(weather_df["date"])
 
 # Aggregate all available weather channels (align with Cereal)
@@ -118,8 +120,10 @@ weather_daily = (
 )
 
 # --- Short-cycle windows (vegetable-specific) ---
-weather_daily["rainfall_3d_sum"]  = weather_daily["rainfall"].shift(1).rolling(3).sum()
-weather_daily["temp_3d_avg"]      = weather_daily["temperature"].shift(1).rolling(3).mean()
+weather_daily["rainfall_3d_sum"] = weather_daily["rainfall"].shift(
+    1).rolling(3).sum()
+weather_daily["temp_3d_avg"] = weather_daily["temperature"].shift(
+    1).rolling(3).mean()
 weather_daily["rainfall_shock_3d"] = (
     (weather_daily["rainfall"].shift(1) - weather_daily["rainfall"].shift(1).rolling(3).mean()) /
     (weather_daily["rainfall"].shift(1).rolling(3).mean() + 1e-6)
@@ -130,10 +134,14 @@ weather_daily["temp_shock_3d"] = (
 )
 
 # --- Shared medium windows ---
-weather_daily["rainfall_7d"]         = weather_daily["rainfall"].shift(1).rolling(7).sum()
-weather_daily["rainfall_15d"]       = weather_daily["rainfall"].shift(1).rolling(15).sum()
-weather_daily["temp_7d_avg"]        = weather_daily["temperature"].shift(1).rolling(7).mean()
-weather_daily["temp_14d_avg"]       = weather_daily["temperature"].shift(1).rolling(14).mean()
+weather_daily["rainfall_7d"] = weather_daily["rainfall"].shift(
+    1).rolling(7).sum()
+weather_daily["rainfall_15d"] = weather_daily["rainfall"].shift(
+    1).rolling(15).sum()
+weather_daily["temp_7d_avg"] = weather_daily["temperature"].shift(
+    1).rolling(7).mean()
+weather_daily["temp_14d_avg"] = weather_daily["temperature"].shift(
+    1).rolling(14).mean()
 weather_daily["temp_deviation_14d"] = (
     weather_daily["temperature"].shift(1) - weather_daily["temp_14d_avg"]
 )
@@ -155,10 +163,12 @@ fuel_df = pd.read_csv("ml_pipeline/data/Fuel_prices.csv")
 
 # Robust price parsing (handles '*' suffix and whitespace)
 fuel_df["Petrol_price"] = (
-    fuel_df["Petrol_price"].astype(str).str.replace("*", "", regex=False).astype(float)
+    fuel_df["Petrol_price"].astype(str).str.replace(
+        "*", "", regex=False).astype(float)
 )
 fuel_df["Diesel_price"] = (
-    fuel_df["Diesel_price"].astype(str).str.replace("*", "", regex=False).astype(float)
+    fuel_df["Diesel_price"].astype(str).str.replace(
+        "*", "", regex=False).astype(float)
 )
 
 fuel_df["Month"] = fuel_df["Month"].astype(str).str.strip()
@@ -188,9 +198,9 @@ fuel_daily = pd.merge_asof(
 )
 
 # Lagged fuel price features
-fuel_daily["diesel_lag_7"]  = fuel_daily["Diesel_price"].shift(7)
+fuel_daily["diesel_lag_7"] = fuel_daily["Diesel_price"].shift(7)
 fuel_daily["diesel_lag_30"] = fuel_daily["Diesel_price"].shift(30)
-fuel_daily["petrol_lag_7"]  = fuel_daily["Petrol_price"].shift(7)
+fuel_daily["petrol_lag_7"] = fuel_daily["Petrol_price"].shift(7)
 fuel_daily["petrol_lag_30"] = fuel_daily["Petrol_price"].shift(30)
 
 fuel_daily["diesel_pct_change_7"] = (
@@ -244,9 +254,9 @@ final_df["market_closed_flag"] = (
 # SECTION 6 — TIME FEATURES
 # ─────────────────────────────────────────────────────────────
 print(" Engineering time features")
-final_df["Month_Num"]  = final_df["date"].dt.month
-final_df["DayOfYear"]  = final_df["date"].dt.dayofyear
-final_df["Year"]       = final_df["date"].dt.year
+final_df["Month_Num"] = final_df["date"].dt.month
+final_df["DayOfYear"] = final_df["date"].dt.dayofyear
+final_df["Year"] = final_df["date"].dt.year
 final_df["WeekOfYear"] = final_df["date"].dt.isocalendar().week.astype(int)
 
 # Seasonal price index — expanding historical mean shifted by 1 to avoid leakage
@@ -323,8 +333,8 @@ for lag in [1, 2, 3, 7, 14]:
 
 # Boundary verification
 final_df["_prev_commodity"] = final_df["commodity"].shift(1)
-boundary_rows  = final_df[final_df["commodity"] != final_df["_prev_commodity"]]
-contaminated   = boundary_rows["price_lag_3"].notna().sum()
+boundary_rows = final_df[final_df["commodity"] != final_df["_prev_commodity"]]
+contaminated = boundary_rows["price_lag_3"].notna().sum()
 if contaminated == 0:
     print("   Lag verification passed — no cross-commodity contamination")
 else:
@@ -447,6 +457,7 @@ final_df["price_relative_strength"] = (
 # ─────────────────────────────────────────────────────────────
 print(" Engineering technical indicators (leak-free)")
 
+
 def compute_technical_indicators(group):
     """Compute EMA, MACD, and RSI per commodity on the lagged price series."""
     df = group.copy()
@@ -455,25 +466,26 @@ def compute_technical_indicators(group):
     p = df["modal_price"].shift(1)
 
     # Exponential Moving Averages
-    df["price_ema_7"]  = p.ewm(span=7,  adjust=False).mean()
+    df["price_ema_7"] = p.ewm(span=7,  adjust=False).mean()
     df["price_ema_14"] = p.ewm(span=14, adjust=False).mean()
 
     # MACD (Moving Average Convergence Divergence)
     ema_12 = p.ewm(span=12, adjust=False).mean()
     ema_26 = p.ewm(span=26, adjust=False).mean()
-    df["macd"]        = ema_12 - ema_26
+    df["macd"] = ema_12 - ema_26
     df["macd_signal"] = df["macd"].ewm(span=9, adjust=False).mean()
 
     # RSI-14
-    delta    = p.diff()
-    up       = delta.clip(lower=0)
-    down     = -1 * delta.clip(upper=0)
-    ema_up   = up.ewm(com=13,   adjust=False).mean()
+    delta = p.diff()
+    up = delta.clip(lower=0)
+    down = -1 * delta.clip(upper=0)
+    ema_up = up.ewm(com=13,   adjust=False).mean()
     ema_down = down.ewm(com=13, adjust=False).mean()
     rs = ema_up / (ema_down + 1e-6)
     df["rsi_14"] = 100 - (100 / (1 + rs))
 
     return df
+
 
 final_df = final_df.groupby("commodity", group_keys=False).apply(
     compute_technical_indicators
@@ -490,10 +502,10 @@ final_df = final_df.groupby("commodity", group_keys=False).apply(
 # ─────────────────────────────────────────────────────────────
 print(" Engineering price regime features")
 for c_name, grp in final_df.groupby('commodity'):
-    idx  = grp.index
+    idx = grp.index
     lag1 = grp['modal_price'].shift(1)
     long_median = lag1.rolling(365, min_periods=60).median()
-    regime      = (lag1 > long_median).fillna(0).astype(int)
+    regime = (lag1 > long_median).fillna(0).astype(int)
     final_df.loc[idx, 'price_regime'] = regime
     # Regime transition: 1 within a 42-day window centred on a flip
     regime_flip = regime.diff().abs().fillna(0)
@@ -517,17 +529,16 @@ HARVEST_WINDOWS = {
     'cauliflower': [11, 12, 1, 2],    # Winter harvest
 }
 final_df['is_harvest_window'] = final_df.apply(
-    lambda r: 1 if r['Month_Num'] in HARVEST_WINDOWS.get(r['commodity'], []) else 0,
+    lambda r: 1 if r['Month_Num'] in HARVEST_WINDOWS.get(
+        r['commodity'], []) else 0,
     axis=1
 )
 
-# Year-over-year price ratio:
-# LEAK FIX: pre-fill price_lag_365 NaN (first ~365 rows per commodity)
-# with price_lag_3 so that yoy_price_ratio = price_lag_3/price_lag_3 ≈ 1.0
-# (neutral 'no-change' prior). Prevents bfill from later propagating
-# day-365 data backward to warmup rows 15-364.
-final_df['price_lag_365'] = final_df.groupby('commodity')['modal_price'].shift(365)
-final_df['price_lag_365'] = final_df['price_lag_365'].fillna(final_df['price_lag_3'])
+
+final_df['price_lag_365'] = final_df.groupby(
+    'commodity')['modal_price'].shift(365)
+final_df['price_lag_365'] = final_df['price_lag_365'].fillna(
+    final_df['price_lag_3'])
 final_df['yoy_price_ratio'] = (
     final_df['price_lag_3'] / (final_df['price_lag_365'] + 1e-6)
 )
@@ -550,7 +561,8 @@ lag_cols = [
     "arrival_lag_3", "arrival_rolling_7", "arrival_rolling_14", "arrival_rolling_30",
     "arrival_shock", "supply_stress_index", "supply_shock_7v30",
     "supply_tightness", "price_relative_strength",
-    "yoy_price_ratio",    # warmup NaN pre-filled with neutral≈1.0 above (no bfill needed)
+    # warmup NaN pre-filled with neutral≈1.0 above (no bfill needed)
+    "yoy_price_ratio",
 ]
 lag_cols = [c for c in lag_cols if c in final_df.columns]
 
@@ -561,9 +573,10 @@ final_df = final_df.sort_values(["commodity", "date"])
 
 # Step 1: Drop warmup rows (longest meaningful lag = price_lag_14)
 rows_before = len(final_df)
-final_df    = final_df.dropna(subset=["price_lag_14"])
+final_df = final_df.dropna(subset=["price_lag_14"])
 rows_dropped = rows_before - len(final_df)
-print(f"  Warmup rows dropped       : {rows_dropped} ({rows_dropped/rows_before*100:.2f}%)")
+print(
+    f"  Warmup rows dropped       : {rows_dropped} ({rows_dropped/rows_before*100:.2f}%)")
 
 # Step 2: Forward-fill per commodity (ffill = safe — propagates last known
 # value forward, never backward; no future-to-past leakage)
@@ -580,7 +593,7 @@ after_nan = final_df[lag_cols].isna().sum().sum()
 print(f"  Total NaNs after filling  : {after_nan}")
 print("\n  NaN % per feature after filling:")
 for c in lag_cols:
-    pct    = final_df[c].isna().mean() * 100
+    pct = final_df[c].isna().mean() * 100
     status = "" if pct == 0 else "⚠️ "
     print(f"    {status} {c:<40} {pct:.2f}%")
 
@@ -591,10 +604,11 @@ print(" Final cleanup")
 final_df = final_df.sort_values(["commodity", "date"]).reset_index(drop=True)
 print(f"\n  Final dataset shape : {final_df.shape}")
 print(f"  Total features      : {final_df.shape[1]}")
-print(f"  Date range          : {final_df['date'].min().date()} -> {final_df['date'].max().date()}")
+print(
+    f"  Date range          : {final_df['date'].min().date()} -> {final_df['date'].max().date()}")
 print(f"  Commodities         : {final_df['commodity'].unique().tolist()}")
 
-out_dir  = "ml_pipeline/data"
+out_dir = "ml_pipeline/data"
 out_file = os.path.join(out_dir, "Vegetable_Feature_v1.csv")
 final_df.to_csv(out_file, index=False)
 
