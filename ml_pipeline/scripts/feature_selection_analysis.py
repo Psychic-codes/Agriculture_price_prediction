@@ -1,21 +1,3 @@
-"""
-feature_selection_analysis.py
-==============================
-Efficient feature selection for the 30-day agricultural price forecasting pipeline.
-
-Strategy:
- 1. Load the trained RF model's feature_importances_ (free - already computed during training)
- 2. Warn if the model was trained on known-leaky features (modal_price / min_price / max_price)
- 3. Compute pairwise Pearson correlation on the training features
- 4. Flag correlated pairs (|corr| > CORR_THRESHOLD)
- 5. For each correlated pair, keep the one with higher RF importance
- 6. Print the final curated NUMERIC_FEATURES_WANTED list you can paste directly
-    into Cereal_ml_v1.py / Vegetable_ml_v1.py
-
-Run from project root:
-  python ml_pipeline/scripts/feature_selection_analysis.py
-"""
-
 import warnings
 
 import joblib
